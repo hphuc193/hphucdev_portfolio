@@ -348,34 +348,96 @@ export function Hero() {
           - Framed 3D Stage Visual with floating telemetry
           - Native 120Hz silky scrolling with zero phone heating
           ========================================================================= */}
-      <div className="block lg:hidden z-10 relative my-auto py-3 sm:py-4 space-y-3.5">
-        {/* 1. Category Pill */}
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-sky-500/30 bg-white/95 backdrop-blur-md w-fit shadow-xs">
-          <span className="text-sky-600 font-mono font-bold text-xs">#</span>
-          <span className="text-[10px] sm:text-[11px] font-mono uppercase tracking-widest text-slate-700 font-bold">
-            SOFTWARE & MOBILE ENGINEER
-          </span>
+      <div className="block lg:hidden z-10 relative my-auto py-3 sm:py-4 space-y-4">
+        {/* 1. Chuyên ngành (Domain & Status Badge) */}
+        <div className="flex items-center justify-between gap-2">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-sky-400/40 bg-gradient-to-r from-sky-500/10 via-white/95 to-cyan-500/10 backdrop-blur-md shadow-[0_2px_12px_rgba(2,132,199,0.1)]">
+            <span className="flex h-2 w-2 relative">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-sky-500 shadow-[0_0_6px_#0284c7]" />
+            </span>
+            <span className="text-[10px] sm:text-[11px] font-mono uppercase tracking-[0.16em] font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-sky-700 via-sky-600 to-cyan-600">
+              SOFTWARE &amp; MOBILE ARCHITECT
+            </span>
+          </div>
+
+          <div className="px-2.5 py-1 rounded-full bg-white/85 border border-slate-200/90 text-[10px] font-mono text-slate-500 flex items-center gap-1 shadow-2xs">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+            <span className="font-semibold text-slate-700">VERIFIED</span>
+          </div>
         </div>
 
-        {/* 2. Headline & Subtitle */}
-        <div className="space-y-0.5">
-          <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-slate-900 leading-tight">
-            HOANGPHUC
-          </h1>
-          <p className="text-sm sm:text-base font-light text-slate-600 italic">
-            Hoàng Phúc · Lê Công Hoàng Phúc
-          </p>
+        {/* 2. Headline & Artistic Signature Byline */}
+        <div className="relative pt-1 space-y-1">
+          {/* Ambient subtle backglow behind name */}
+          <div className="absolute -left-4 -top-3 w-48 h-16 bg-sky-400/15 rounded-full blur-2xl pointer-events-none" />
+
+          <div className="relative">
+            <h1 className="font-[family-name:var(--font-syne)] text-[2.75rem] sm:text-[3.35rem] font-extrabold tracking-[-0.035em] leading-[0.92] select-none text-slate-900 drop-shadow-[0_2px_12px_rgba(255,255,255,0.95)]">
+              HOANG<span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-600 via-sky-500 to-cyan-500">PHUC</span>
+            </h1>
+          </div>
+
+          {/* Designer Signature Byline */}
+          <div className="flex items-center gap-2 pt-0.5">
+            <div className="h-[2px] w-6 bg-gradient-to-r from-sky-500 to-transparent rounded-full" />
+            <span className="text-xs sm:text-sm font-bold tracking-tight text-slate-800">
+              Hoàng Phúc
+            </span>
+            <span className="w-1 h-1 rounded-full bg-sky-400" />
+            <span className="text-xs sm:text-sm font-light text-slate-500 font-mono tracking-tight">
+              Lê Công Hoàng Phúc
+            </span>
+          </div>
         </div>
 
-        {/* 3. Dynamic Terminal Typing Line */}
-        <div className="h-7 flex items-center overflow-hidden font-mono text-sm sm:text-base font-bold text-sky-600">
-          <span className="mr-2">&gt;</span>
-          <div key={roleIndex} className="flex items-center">
-            <ScrambleText
-              text={locale === "vi" ? roles[roleIndex].vi : roles[roleIndex].en}
-              triggerOnHover={false}
-            />
-            <span className="inline-block w-1.5 h-3 bg-sky-600 ml-1 animate-pulse" />
+        {/* 3. Sở trường (Core Specialties & Dynamic Superpowers) */}
+        <div className="space-y-2 pt-0.5">
+          {/* Active Specialty Capsule with Glowing Border */}
+          <div className="relative rounded-2xl p-3 bg-gradient-to-r from-slate-950 via-slate-900 to-sky-950 text-white shadow-[0_8px_24px_rgba(2,132,199,0.2)] border border-sky-400/35 overflow-hidden">
+            {/* Ambient internal light */}
+            <div className="absolute -right-4 -bottom-4 w-28 h-28 bg-sky-500/20 rounded-full blur-2xl pointer-events-none" />
+
+            <div className="flex items-center justify-between mb-1.5 text-[10px] font-mono">
+              <div className="flex items-center gap-1.5 text-sky-400 font-bold uppercase tracking-wider">
+                <Sparkles className="w-3 h-3 text-sky-400 animate-pulse" />
+                <span>{locale === "vi" ? "SỞ TRƯỜNG CHUYÊN SÂU" : "CORE SPECIALTY"}</span>
+              </div>
+              <span className="px-2 py-0.5 rounded-full bg-sky-500/25 border border-sky-400/40 text-[9px] font-mono font-bold text-sky-300">
+                0{roleIndex + 1} / 06
+              </span>
+            </div>
+
+            {/* Dynamic Title */}
+            <div className="h-6 flex items-center text-sm sm:text-base font-bold font-sans tracking-tight text-white">
+              <span className="text-sky-400 font-mono mr-1.5">&gt;</span>
+              <div key={roleIndex} className="flex items-center">
+                <span className="font-bold text-white tracking-tight">
+                  {locale === "vi" ? roles[roleIndex].vi : roles[roleIndex].en}
+                </span>
+                <span className="inline-block w-1.5 h-3.5 bg-sky-400 ml-1.5 animate-pulse rounded-xs shadow-[0_0_8px_#38bdf8]" />
+              </div>
+            </div>
+          </div>
+
+          {/* Signature Tech Badges (Highlights) */}
+          <div className="flex flex-wrap gap-1.5">
+            {[
+              { label: "Flutter & Dart", desc: "Cross-Platform", dot: "bg-sky-500" },
+              { label: "Kotlin Native", desc: "Android Media3", dot: "bg-indigo-500" },
+              { label: "SwiftUI iOS", desc: "Combine & Core", dot: "bg-cyan-500" },
+              { label: "Applied AI", desc: "LLM & ML", dot: "bg-amber-500" },
+            ].map((tech) => (
+              <div
+                key={tech.label}
+                className="px-2.5 py-1 rounded-xl text-[10px] font-mono bg-white/90 border border-slate-200/90 backdrop-blur-md shadow-2xs flex items-center gap-1.5"
+              >
+                <span className={`w-1.5 h-1.5 rounded-full ${tech.dot}`} />
+                <span className="font-bold text-slate-800">{tech.label}</span>
+                <span className="text-slate-300">·</span>
+                <span className="text-[9px] text-slate-500">{tech.desc}</span>
+              </div>
+            ))}
           </div>
         </div>
 
