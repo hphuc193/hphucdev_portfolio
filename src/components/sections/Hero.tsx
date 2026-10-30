@@ -356,7 +356,7 @@ export function Hero() {
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75" />
               <span className="relative inline-flex rounded-full h-2 w-2 bg-sky-500 shadow-[0_0_6px_#0284c7]" />
             </span>
-            <span className="text-[10px] sm:text-[11px] font-mono uppercase tracking-[0.16em] font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-sky-700 via-sky-600 to-cyan-600">
+            <span className="text-[9px] sm:text-[10.5px] font-mono uppercase tracking-[0.12em] font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-sky-700 via-sky-600 to-cyan-600">
               SOFTWARE &amp; MOBILE ARCHITECT
             </span>
           </div>
@@ -373,7 +373,7 @@ export function Hero() {
           <div className="absolute -left-4 -top-3 w-48 h-16 bg-sky-400/15 rounded-full blur-2xl pointer-events-none" />
 
           <div className="relative">
-            <h1 className="font-[family-name:var(--font-syne)] text-[2.75rem] sm:text-[3.35rem] font-extrabold tracking-[-0.035em] leading-[0.92] select-none text-slate-900 drop-shadow-[0_2px_12px_rgba(255,255,255,0.95)]">
+            <h1 className="font-[family-name:var(--font-syne)] text-[clamp(1.75rem,7.5vw,2.35rem)] sm:text-[3rem] font-extrabold tracking-[-0.04em] leading-[0.95] select-none text-slate-900 drop-shadow-[0_2px_12px_rgba(255,255,255,0.95)] whitespace-nowrap">
               HOANG<span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-600 via-sky-500 to-cyan-500">PHUC</span>
             </h1>
           </div>
@@ -449,7 +449,7 @@ export function Hero() {
             <span>3D BUILDER REALM</span>
           </div>
           
-          <div className="absolute top-3.5 right-3.5 z-10 flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-sky-950/80 backdrop-blur-md border border-sky-400/30 shadow-xs text-[9px] font-mono font-bold text-sky-200">
+          <div className="absolute bottom-3 right-3 z-10 flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-slate-950/85 backdrop-blur-md border border-sky-400/30 shadow-xs text-[9px] font-mono font-bold text-sky-200">
             <span className="text-sky-400 font-bold">&lt;/&gt;</span>
             <span>MOBILE & AI</span>
           </div>
