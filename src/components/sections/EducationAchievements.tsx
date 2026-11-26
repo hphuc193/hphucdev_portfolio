@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { usePortfolio } from "@/context/PortfolioContext";
 import {
   Trophy,
@@ -19,8 +20,11 @@ import {
   Calendar,
   Sparkles,
   CheckCircle2,
-  Maximize2,
 } from "lucide-react";
+
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(ScrollTrigger);
+}
 
 interface AchievementItem {
   id: string;
@@ -199,8 +203,15 @@ export function EducationAchievements() {
   // Center card (VPBank Hackathon) is active by default
   const [activeIndex, setActiveIndex] = useState<number>(2);
   const [modalItem, setModalItem] = useState<AchievementItem | null>(null);
-  const [isPaused, setIsPaused] = useState<boolean>(false);
   const sectionRef = useRef<HTMLElement>(null);
+
+  // Recalculate ScrollTrigger on mount and layout settle so scrolling never freezes
+  useEffect(() => {
+    const refreshTimer = setTimeout(() => {
+      ScrollTrigger.refresh();
+    }, 250);
+    return () => clearTimeout(refreshTimer);
+  }, []);
 
   const prevCard = useCallback(() => {
     playUiSound("click");
@@ -250,18 +261,22 @@ export function EducationAchievements() {
       id="education"
       className="py-20 md:py-28 px-4 sm:px-6 md:px-8 lg:px-12 relative overflow-hidden bg-[var(--bg-base)]"
     >
-      {/* --- BACKGROUND 3D CRYSTAL TROPHY & ORBITAL ACCENTS --- */}
-      <div className="absolute top-0 right-0 w-[420px] sm:w-[540px] md:w-[680px] lg:w-[820px] h-[480px] sm:h-[600px] pointer-events-none select-none overflow-visible -z-0 opacity-90 dark:opacity-75">
-        <CrystalTrophyBackdrop />
+      {/* --- AUTHENTIC 3D CRYSTAL TROPHY & ORBITAL ACCENTS (IMAGE ASSET) --- */}
+      <div className="absolute top-0 right-0 w-[520px] sm:w-[680px] md:w-[820px] lg:w-[960px] pointer-events-none select-none -z-0">
+        <img
+          src="/images/achievements/crystal-trophy-backdrop.png"
+          alt="Crystal Trophy Backdrop"
+          className="w-full h-auto object-contain opacity-95 dark:opacity-85 drop-shadow-[0_20px_60px_rgba(2,132,199,0.2)]"
+        />
       </div>
 
       {/* Ambient background soft light flares */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[350px] bg-sky-400/10 dark:bg-sky-500/10 rounded-full blur-[120px] pointer-events-none -z-0" />
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[350px] bg-sky-400/10 dark:bg-sky-500/10 rounded-full blur-[140px] pointer-events-none -z-0" />
 
       <div className="max-w-7xl mx-auto relative z-10">
         {/* --- SECTION HEADER WITH EDITORIAL TAG & ARROW CONTROLS --- */}
         <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-8 sm:mb-12">
-          <div>
+          <div className="max-w-2xl">
             {/* Top pill identifier: ● 04 — ACHIEVEMENTS */}
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-sky-50 dark:bg-sky-950/60 border border-sky-200/80 dark:border-sky-800/80 text-sky-600 dark:text-sky-400 font-mono text-[11px] font-bold tracking-widest uppercase mb-4 shadow-xs">
               <span className="w-2 h-2 rounded-full bg-sky-500 animate-pulse" />
@@ -283,23 +298,23 @@ export function EducationAchievements() {
           </div>
 
           {/* Top Right Navigation Controls: [ ← ]  1 / 5  [ → ] */}
-          <div className="flex items-center gap-3 self-start lg:self-end">
+          <div className="flex items-center gap-3 self-start lg:self-end z-20">
             <button
               onClick={prevCard}
               aria-label="Previous achievement card"
-              className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white/90 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 shadow-sm hover:border-sky-500 hover:text-sky-600 dark:hover:border-sky-400 dark:hover:text-sky-400 flex items-center justify-center transition-all duration-200 cursor-pointer active:scale-95"
+              className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white/95 dark:bg-slate-900/95 border border-slate-200/90 dark:border-slate-800/90 shadow-sm hover:border-sky-500 hover:text-sky-600 dark:hover:border-sky-400 dark:hover:text-sky-400 flex items-center justify-center transition-all duration-200 cursor-pointer active:scale-95"
             >
               <ChevronLeft className="w-5 h-5" />
             </button>
 
-            <div className="px-3 py-1.5 rounded-full bg-white/80 dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800/80 text-xs sm:text-sm font-mono font-bold text-[var(--text-secondary)] shadow-xs min-w-[58px] text-center">
+            <div className="px-3.5 py-1.5 rounded-full bg-white/90 dark:bg-slate-900/90 border border-slate-200/90 dark:border-slate-800/90 text-xs sm:text-sm font-mono font-bold text-[var(--text-secondary)] shadow-xs min-w-[62px] text-center">
               {activeIndex + 1} / {ACHIEVEMENTS_DATA.length}
             </div>
 
             <button
               onClick={nextCard}
               aria-label="Next achievement card"
-              className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white/90 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 shadow-sm hover:border-sky-500 hover:text-sky-600 dark:hover:border-sky-400 dark:hover:text-sky-400 flex items-center justify-center transition-all duration-200 cursor-pointer active:scale-95"
+              className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white/95 dark:bg-slate-900/95 border border-slate-200/90 dark:border-slate-800/90 shadow-sm hover:border-sky-500 hover:text-sky-600 dark:hover:border-sky-400 dark:hover:text-sky-400 flex items-center justify-center transition-all duration-200 cursor-pointer active:scale-95"
             >
               <ChevronRight className="w-5 h-5" />
             </button>
@@ -307,8 +322,8 @@ export function EducationAchievements() {
         </div>
 
         {/* --- HORIZONTAL REFINED STATS PANEL (GPA · VSTEP · SCHOLARSHIP) --- */}
-        <div className="mb-14 sm:mb-16">
-          <div className="inline-flex flex-wrap sm:flex-nowrap items-center gap-4 sm:gap-6 md:gap-8 p-3 sm:p-4 rounded-2xl bg-white/85 dark:bg-slate-900/85 backdrop-blur-xl border border-slate-200/90 dark:border-slate-800/90 shadow-sm max-w-full">
+        <div className="mb-12 sm:mb-16">
+          <div className="inline-flex flex-wrap sm:flex-nowrap items-center gap-4 sm:gap-6 md:gap-8 p-3 sm:p-4 rounded-2xl bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border border-slate-200/90 dark:border-slate-800/90 shadow-sm max-w-full">
             {/* Stat 1: GPA */}
             <div className="flex items-center gap-3 pr-2">
               <div className="w-10 h-10 rounded-xl bg-sky-500/10 text-sky-600 dark:text-sky-400 flex items-center justify-center shrink-0 border border-sky-500/15">
@@ -362,25 +377,25 @@ export function EducationAchievements() {
 
         {/* --- 3D INTERACTIVE ACHIEVEMENT CAROUSEL --- */}
         <div
-          className="relative w-full h-[450px] sm:h-[480px] md:h-[510px] flex items-center justify-center select-none"
-          style={{ perspective: 1300 }}
-          onMouseEnter={() => setIsPaused(true)}
-          onMouseLeave={() => setIsPaused(false)}
+          className="relative w-full h-[470px] sm:h-[500px] md:h-[530px] flex items-center justify-center select-none"
+          style={{ perspective: 1400 }}
         >
           {/* Luminous blue pedestal glow under center card */}
-          <div className="absolute bottom-6 sm:bottom-8 left-1/2 -translate-x-1/2 w-[340px] sm:w-[420px] md:w-[480px] h-12 pointer-events-none -z-0">
-            <div className="w-full h-full bg-gradient-to-r from-transparent via-sky-500/35 to-transparent blur-xl" />
-            <div className="absolute bottom-2 inset-x-12 h-1 rounded-full bg-sky-400/70 blur-xs" />
+          <div className="absolute bottom-6 sm:bottom-8 left-1/2 -translate-x-1/2 w-[340px] sm:w-[420px] md:w-[480px] h-14 pointer-events-none -z-0">
+            <div className="w-full h-full bg-gradient-to-r from-transparent via-sky-500/40 to-transparent blur-2xl" />
+            <div className="absolute bottom-2 inset-x-12 h-1 rounded-full bg-sky-400/80 blur-xs" />
           </div>
 
-          {/* Drag container for mouse & touch swipe */}
+          {/* Drag container with explicit touch-action: pan-y to allow vertical wheel/touch scrolling without locking */}
           <motion.div
             className="w-full h-full relative flex items-center justify-center cursor-grab active:cursor-grabbing"
+            style={{ touchAction: "pan-y" }}
             drag="x"
+            dragDirectionLock={true}
             dragConstraints={{ left: 0, right: 0 }}
-            dragElastic={0.2}
+            dragElastic={0.15}
             onDragEnd={(_, info) => {
-              const swipe = Math.abs(info.offset.x) > 40 || Math.abs(info.velocity.x) > 450;
+              const swipe = Math.abs(info.offset.x) > 35 || Math.abs(info.velocity.x) > 400;
               if (swipe && info.offset.x > 0) prevCard();
               else if (swipe && info.offset.x < 0) nextCard();
             }}
@@ -393,23 +408,23 @@ export function EducationAchievements() {
 
               const isActive = diff === 0;
               const isImmediateNeighbor = Math.abs(diff) === 1;
-              const isFar = Math.abs(diff) === 2;
 
               // Spatial 3D calculations
               const xDesktop = diff === 0 ? 0 : diff === -1 ? "-68%" : diff === 1 ? "68%" : diff === -2 ? "-132%" : "132%";
               const xMobile = diff === 0 ? 0 : diff === -1 ? "-82%" : diff === 1 ? "82%" : diff === -2 ? "-160%" : "160%";
-              const rotateY = diff === 0 ? 0 : diff === -1 ? 16 : diff === 1 ? -16 : diff === -2 ? 26 : -26;
-              const scale = diff === 0 ? 1.05 : isImmediateNeighbor ? 0.91 : 0.78;
-              const opacity = diff === 0 ? 1 : isImmediateNeighbor ? 0.8 : 0.42;
+              const rotateY = diff === 0 ? 0 : diff === -1 ? 18 : diff === 1 ? -18 : diff === -2 ? 28 : -28;
+              const scale = diff === 0 ? 1.07 : isImmediateNeighbor ? 0.90 : 0.76;
+              const opacity = diff === 0 ? 1 : isImmediateNeighbor ? 0.82 : 0.45;
               const zIndex = diff === 0 ? 30 : isImmediateNeighbor ? 20 : 10;
 
               return (
                 <motion.div
                   key={item.id}
-                  className="absolute top-1/2 -translate-y-1/2 w-[82vw] sm:w-[360px] md:w-[390px] lg:w-[410px] will-change-transform"
+                  className="absolute top-1/2 -translate-y-1/2 w-[84vw] sm:w-[370px] md:w-[400px] lg:w-[420px] will-change-transform"
                   style={{
                     zIndex,
                     transformStyle: "preserve-3d",
+                    touchAction: "pan-y",
                   }}
                   animate={{
                     x: typeof window !== "undefined" && window.innerWidth < 640 ? xMobile : xDesktop,
@@ -433,20 +448,28 @@ export function EducationAchievements() {
                     }
                   }}
                 >
-                  {/* The Achievement Glass Card */}
+                  {/* The Glass Vitrine Monolith Card */}
                   <div
-                    className={`relative rounded-[26px] sm:rounded-[28px] p-6 sm:p-7 md:p-8 backdrop-blur-2xl transition-all duration-300 border ${
+                    className={`relative rounded-[28px] sm:rounded-[32px] p-6 sm:p-7 md:p-8 backdrop-blur-2xl transition-all duration-300 border overflow-hidden ${
                       isActive
-                        ? "bg-white/95 dark:bg-slate-900/95 border-sky-400/80 dark:border-sky-500/80 shadow-[0_20px_50px_rgba(2,132,199,0.22)] dark:shadow-[0_20px_60px_rgba(56,189,248,0.25)] ring-1 ring-sky-400/30"
-                        : "bg-white/80 dark:bg-slate-900/80 border-slate-200/90 dark:border-slate-800/90 shadow-[0_12px_30px_rgba(15,23,42,0.08)] hover:border-slate-300"
+                        ? "bg-gradient-to-b from-white/98 via-white/92 to-sky-50/70 dark:from-slate-900/98 dark:via-slate-900/90 dark:to-slate-950/98 border-sky-400/80 dark:border-sky-500/80 shadow-[0_25px_60px_rgba(2,132,199,0.22)] dark:shadow-[0_25px_70px_rgba(56,189,248,0.25)] ring-1 ring-sky-400/40"
+                        : "bg-white/80 dark:bg-slate-900/80 border-slate-200/90 dark:border-slate-800/90 shadow-[0_12px_32px_rgba(15,23,42,0.06)] hover:border-slate-300 dark:hover:border-slate-700"
                     }`}
                   >
-                    {/* Top Row: Icon + Badge Pill */}
-                    <div className="flex items-center justify-between mb-5">
+                    {/* Top Specular Rim Lighting Glint */}
+                    <div className="absolute top-0 inset-x-8 h-px bg-gradient-to-r from-transparent via-sky-400/70 to-transparent pointer-events-none" />
+
+                    {/* Faint Architectural Monogram Watermark */}
+                    <div className="absolute top-3 right-5 text-4xl font-mono font-black text-slate-900/[0.04] dark:text-white/[0.04] select-none pointer-events-none">
+                      0{index + 1}
+                    </div>
+
+                    {/* Top Row: 3D Squircle Icon + Badge Capsule */}
+                    <div className="flex items-center justify-between mb-5 relative z-10">
                       <div
-                        className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-colors ${
+                        className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all ${
                           isActive
-                            ? "bg-gradient-to-br from-sky-500 to-blue-600 text-white shadow-md shadow-sky-500/25"
+                            ? "bg-gradient-to-br from-sky-400 via-sky-500 to-blue-600 text-white shadow-lg shadow-sky-500/30 ring-2 ring-white/60 dark:ring-sky-400/40"
                             : "bg-sky-50 dark:bg-sky-950/60 text-sky-600 dark:text-sky-400 border border-sky-100 dark:border-sky-900"
                         }`}
                       >
@@ -454,13 +477,14 @@ export function EducationAchievements() {
                       </div>
 
                       <span
-                        className={`px-3 py-1 rounded-full text-xs font-semibold font-mono tracking-tight transition-colors ${
+                        className={`px-3 py-1 rounded-full text-xs font-semibold font-mono tracking-tight transition-colors flex items-center gap-1.5 ${
                           item.badgeType === "award"
-                            ? "bg-sky-100 dark:bg-sky-950/80 text-sky-700 dark:text-sky-300 border border-sky-300/60"
-                            : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200/70 dark:border-slate-700/70"
+                            ? "bg-sky-100/90 dark:bg-sky-950/80 text-sky-700 dark:text-sky-300 border border-sky-300/80"
+                            : "bg-slate-100/90 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200/80 dark:border-slate-700/80"
                         }`}
                       >
-                        {locale === "vi" ? item.badge.vi : item.badge.en}
+                        {isActive && <span className="w-1.5 h-1.5 rounded-full bg-sky-500 animate-pulse" />}
+                        <span>{locale === "vi" ? item.badge.vi : item.badge.en}</span>
                       </span>
                     </div>
 
@@ -476,25 +500,26 @@ export function EducationAchievements() {
                     </h3>
 
                     {/* Organization / Location */}
-                    <div className="text-xs sm:text-[13px] font-medium text-[var(--text-secondary)] mb-4 line-clamp-1">
+                    <div className="text-xs sm:text-[13px] font-semibold text-[var(--text-secondary)] mb-4 line-clamp-1">
                       {locale === "vi" ? item.organization.vi : item.organization.en}
                     </div>
 
                     {/* Period Pill with Calendar Icon */}
-                    <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100/90 dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-700/80 text-[11px] font-mono text-slate-600 dark:text-slate-300 mb-4 font-medium">
+                    <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100/90 dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-700/80 text-[11px] font-mono text-slate-600 dark:text-slate-300 mb-4 font-medium">
                       <Calendar className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" />
                       <span>{item.period}</span>
                     </div>
 
                     {/* Summary Description */}
-                    <p className="text-xs sm:text-[13px] text-[var(--text-secondary)] leading-relaxed mb-6 line-clamp-3">
+                    <p className="text-xs sm:text-[13px] text-[var(--text-secondary)] leading-relaxed mb-6 line-clamp-3 font-normal">
                       {locale === "vi" ? item.summary.vi : item.summary.en}
                     </p>
 
                     {/* Bottom Action Footer */}
-                    <div className="pt-3 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between">
-                      <span className="text-[11px] font-mono font-medium text-slate-400 dark:text-slate-500">
-                        {item.credentialCode || "VERIFIED"}
+                    <div className="pt-3.5 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between">
+                      <span className="text-[11px] font-mono font-bold text-sky-600/80 dark:text-sky-400/80 flex items-center gap-1.5">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-sky-500" />
+                        <span>{item.credentialCode || "VERIFIED"}</span>
                       </span>
 
                       {/* Interactive View Button for active card */}
@@ -504,9 +529,9 @@ export function EducationAchievements() {
                           playUiSound("click");
                           setModalItem(item);
                         }}
-                        className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${
+                        className={`w-9 h-9 rounded-full flex items-center justify-center transition-all cursor-pointer ${
                           isActive
-                            ? "bg-sky-50 dark:bg-sky-950/70 border border-sky-300/80 text-sky-600 dark:text-sky-400 hover:scale-110 hover:bg-sky-500 hover:text-white"
+                            ? "bg-sky-50 dark:bg-sky-950/70 border border-sky-300/90 text-sky-600 dark:text-sky-400 hover:scale-110 hover:bg-sky-500 hover:text-white shadow-xs"
                             : "text-slate-400 opacity-60"
                         }`}
                         title={locale === "vi" ? "Xem chi tiết chứng chỉ" : "View certificate details"}
@@ -677,157 +702,5 @@ export function EducationAchievements() {
         )}
       </AnimatePresence>
     </section>
-  );
-}
-
-// =========================================================================
-// 3D CRYSTAL TROPHY & ORBITAL VECTOR BACKDROP COMPONENT
-// =========================================================================
-function CrystalTrophyBackdrop() {
-  return (
-    <svg
-      viewBox="0 0 680 620"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      className="w-full h-full drop-shadow-[0_20px_50px_rgba(2,132,199,0.18)]"
-    >
-      <defs>
-        {/* Crystal Facet Gradients */}
-        <linearGradient id="facetTopLeft" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#E0F2FE" stopOpacity="0.95" />
-          <stop offset="60%" stopColor="#7DD3FC" stopOpacity="0.85" />
-          <stop offset="100%" stopColor="#0284C7" stopOpacity="0.7" />
-        </linearGradient>
-
-        <linearGradient id="facetTopRight" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#BAE6FD" stopOpacity="0.9" />
-          <stop offset="50%" stopColor="#38BDF8" stopOpacity="0.8" />
-          <stop offset="100%" stopColor="#0369A1" stopOpacity="0.65" />
-        </linearGradient>
-
-        <linearGradient id="facetCenterGlint" x1="50%" y1="0%" x2="50%" y2="100%">
-          <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.98" />
-          <stop offset="50%" stopColor="#E0F2FE" stopOpacity="0.85" />
-          <stop offset="100%" stopColor="#38BDF8" stopOpacity="0.4" />
-        </linearGradient>
-
-        <linearGradient id="facetBaseFront" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#0284C7" stopOpacity="0.6" />
-          <stop offset="100%" stopColor="#1E3A8A" stopOpacity="0.4" />
-        </linearGradient>
-
-        <linearGradient id="sphereGrad" x1="30%" y1="20%" x2="80%" y2="80%">
-          <stop offset="0%" stopColor="#E0F2FE" stopOpacity="1" />
-          <stop offset="40%" stopColor="#38BDF8" stopOpacity="0.9" />
-          <stop offset="100%" stopColor="#0284C7" stopOpacity="0.85" />
-        </linearGradient>
-
-        {/* Radiant Star Glow Filter */}
-        <filter id="starGlow" x="-50%" y="-50%" width="200%" height="200%">
-          <feGaussianBlur in="SourceGraphic" stdDeviation="6" result="blur" />
-          <feMerge>
-            <feMergeNode in="blur" />
-            <feMergeNode in="blur" />
-            <feMergeNode in="SourceGraphic" />
-          </feMerge>
-        </filter>
-
-        <filter id="sphereShadow" x="-20%" y="-20%" width="140%" height="140%">
-          <feDropShadow dx="0" dy="12" stdDeviation="10" floodColor="#0284C7" floodOpacity="0.3" />
-        </filter>
-      </defs>
-
-      {/* --- ORBITAL VECTOR ELLIPSES --- */}
-      {/* Outer subtle orbital line */}
-      <ellipse
-        cx="410"
-        cy="260"
-        rx="230"
-        ry="85"
-        stroke="#0284C7"
-        strokeWidth="1.5"
-        strokeOpacity="0.35"
-        strokeDasharray="8 6"
-        transform="rotate(-16 410 260)"
-      />
-
-      {/* Inner glowing orbital arc */}
-      <ellipse
-        cx="410"
-        cy="260"
-        rx="210"
-        ry="72"
-        stroke="#38BDF8"
-        strokeWidth="1"
-        strokeOpacity="0.5"
-        transform="rotate(-16 410 260)"
-      />
-
-      {/* --- 3D FACETED CRYSTAL TROPHY / OBELISK --- */}
-      <g transform="translate(60, 10)">
-        {/* Crystal Base Pedestal Shards */}
-        <polygon points="340,380 430,340 450,420 360,450" fill="url(#facetBaseFront)" />
-        <polygon points="260,390 340,380 360,450 280,440" fill="#0284C7" fillOpacity="0.45" />
-
-        {/* Main Crystal Prism Facets */}
-        {/* Upper Left Apex Facet */}
-        <polygon points="350,60 270,180 345,210" fill="url(#facetTopLeft)" />
-
-        {/* Upper Right Apex Facet */}
-        <polygon points="350,60 345,210 440,160" fill="url(#facetTopRight)" />
-
-        {/* Mid Left Body Facet */}
-        <polygon points="270,180 250,330 330,370 345,210" fill="url(#facetCenterGlint)" />
-
-        {/* Mid Right Body Facet */}
-        <polygon points="345,210 330,370 420,330 440,160" fill="url(#facetTopLeft)" />
-
-        {/* Lower Left Facet */}
-        <polygon points="250,330 270,410 340,430 330,370" fill="#0284C7" fillOpacity="0.75" />
-
-        {/* Lower Right Facet */}
-        <polygon points="330,370 340,430 425,380 420,330" fill="#0369A1" fillOpacity="0.7" />
-
-        {/* Crystal Facet Specular Highlight Lines */}
-        <polyline
-          points="350,60 345,210 330,370 340,430"
-          stroke="#FFFFFF"
-          strokeWidth="2"
-          strokeOpacity="0.9"
-        />
-        <line x1="350" y1="60" x2="270" y2="180" stroke="#FFFFFF" strokeWidth="1.5" strokeOpacity="0.7" />
-        <line x1="350" y1="60" x2="440" y2="160" stroke="#BAE6FD" strokeWidth="1.5" strokeOpacity="0.6" />
-        <line x1="270" y1="180" x2="345" y2="210" stroke="#FFFFFF" strokeWidth="1" strokeOpacity="0.8" />
-        <line x1="440" y1="160" x2="345" y2="210" stroke="#FFFFFF" strokeWidth="1" strokeOpacity="0.7" />
-
-        {/* --- RADIANT INNER 4-POINT STAR GLINT --- */}
-        <g transform="translate(345, 185) scale(0.9)" filter="url(#starGlow)">
-          <path
-            d="M 0 -45 Q 0 0 -45 0 Q 0 0 0 45 Q 0 0 45 0 Q 0 0 0 -45 Z"
-            fill="#FFFFFF"
-          />
-          {/* Central tiny star core */}
-          <circle cx="0" cy="0" r="5" fill="#E0F2FE" />
-        </g>
-      </g>
-
-      {/* --- FLOATING 3D GLOSSY BLUE SPHERES --- */}
-      {/* Left glossy sphere */}
-      <g filter="url(#sphereShadow)">
-        <circle cx="150" cy="280" r="16" fill="url(#sphereGrad)" />
-        {/* Specular highlight */}
-        <ellipse cx="145" cy="275" rx="5" ry="3" fill="#FFFFFF" fillOpacity="0.85" />
-      </g>
-
-      {/* Right glossy sphere */}
-      <g filter="url(#sphereShadow)">
-        <circle cx="560" cy="200" r="20" fill="url(#sphereGrad)" />
-        <ellipse cx="554" cy="194" rx="6" ry="4" fill="#FFFFFF" fillOpacity="0.85" />
-      </g>
-
-      {/* Small ambient glossy pearl */}
-      <circle cx="360" cy="90" r="7" fill="url(#sphereGrad)" />
-      <circle cx="358" cy="88" r="2" fill="#FFFFFF" fillOpacity="0.9" />
-    </svg>
   );
 }

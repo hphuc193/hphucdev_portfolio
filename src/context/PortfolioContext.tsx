@@ -47,13 +47,13 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
     setMounted(true);
     // Theme initialization
     const storedTheme = localStorage.getItem("hoangphuc_portfolio_theme") as Theme | null;
-    if (storedTheme === "light" || storedTheme === "dark") {
-      setThemeState(storedTheme);
-      document.documentElement.setAttribute("data-theme", storedTheme);
+    const initialTheme = storedTheme === "dark" || storedTheme === "light" ? storedTheme : "light";
+    setThemeState(initialTheme);
+    document.documentElement.setAttribute("data-theme", initialTheme);
+    if (initialTheme === "dark") {
+      document.documentElement.classList.add("dark");
     } else {
-      const initialTheme: Theme = "light";
-      setThemeState(initialTheme);
-      document.documentElement.setAttribute("data-theme", initialTheme);
+      document.documentElement.classList.remove("dark");
     }
 
     // Locale initialization
@@ -74,6 +74,11 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
     setThemeState(newTheme);
     localStorage.setItem("hoangphuc_portfolio_theme", newTheme);
     document.documentElement.setAttribute("data-theme", newTheme);
+    if (newTheme === "dark") {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
     playUiSound("switch");
   };
 
@@ -104,6 +109,11 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
         flushSync(() => {
           setThemeState(nextTheme);
           document.documentElement.setAttribute("data-theme", nextTheme);
+          if (nextTheme === "dark") {
+            document.documentElement.classList.add("dark");
+          } else {
+            document.documentElement.classList.remove("dark");
+          }
         });
         localStorage.setItem("hoangphuc_portfolio_theme", nextTheme);
       });
