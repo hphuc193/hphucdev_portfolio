@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { portfolioData } from "@/data/portfolioData";
@@ -10,7 +10,6 @@ import { CounterBadge } from "@/hooks/useCounter";
 import { VelocityMarquee } from "@/components/ui/VelocityMarquee";
 import {
   Compass,
-  MapPin,
   Sparkles,
 } from "lucide-react";
 
@@ -18,26 +17,14 @@ if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
 }
 
-const TOTAL_FRAMES = 192; // 8 seconds @ 24fps
-const CACHE_KEY = "v20261013_v3";
-
 export function Hero() {
   const { locale, playUiSound } = usePortfolio();
   const [roleIndex, setRoleIndex] = useState(0);
-  const [canvasReady, setCanvasReady] = useState(false);
 
   const heroRef = useRef<HTMLElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
   const foregroundContentRef = useRef<HTMLDivElement>(null);
-  const backgroundStageRef = useRef<HTMLDivElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const videoFallbackRef = useRef<HTMLVideoElement>(null);
-  const lightRaysRef = useRef<HTMLDivElement>(null);
-
-  // Preloaded frame images buffer for instant 60fps frame scrubbing (desktop only)
-  const framesBufferRef = useRef<HTMLImageElement[]>([]);
-  const currentFrameRef = useRef<number>(0);
-  const isDrawingRef = useRef<boolean>(false);
+  const portraitRef = useRef<HTMLDivElement>(null);
 
   const roles = [
     { en: "Mobile Applications", vi: "Ứng dụng Di động" },
@@ -56,191 +43,22 @@ export function Hero() {
     return () => clearInterval(timer);
   }, [roles.length]);
 
-  // Set adaptive canvas resolution on desktop (1920x960)
-  useEffect(() => {
-    if (typeof window === "undefined" || !canvasRef.current) return;
-    if (window.innerWidth < 1024) return;
-    canvasRef.current.width = 1920;
-    canvasRef.current.height = 960;
-  }, []);
-
-  // Render a specific frame onto the background canvas with double-buffering / RAF safety
-  const drawFrame = useCallback((frameIdx: number) => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d", { alpha: false });
-    if (!ctx) return;
-
-    const img = framesBufferRef.current[frameIdx];
-    if (img && img.complete && img.naturalWidth > 0) {
-      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-    }
-  }, []);
-
-  // Progressive frame loading: ONLY on Desktop (>= 1024px)
-  // Completely disabled on mobile to prevent memory bloat, high battery drain, and heating
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    if (window.innerWidth < 1024) return; // Zero heavy loading on mobile
-
-    const images: HTMLImageElement[] = new Array(TOTAL_FRAMES);
-    framesBufferRef.current = images;
-
-    // 1. Immediately load Frame 1 for zero-lag initial paint
-    const img1 = new Image();
-    img1.src = `/videos/hero_frames/frame_001.webp?v=${CACHE_KEY}`;
-    img1.onload = () => {
-      images[0] = img1;
-      drawFrame(0);
-      setCanvasReady(true);
-    };
-
-    // 2. Load remaining frames in progressive batches via requestIdleCallback / setTimeout
-    let currentBatch = 1;
-    let cancelled = false;
-
-    const loadNextBatch = () => {
-      if (cancelled) return;
-      const batchSize = 24;
-      const end = Math.min(TOTAL_FRAMES, currentBatch + batchSize);
-
-      for (let i = currentBatch; i < end; i++) {
-        const img = new Image();
-        const frameNum = String(i + 1).padStart(3, "0");
-        img.src = `/videos/hero_frames/frame_${frameNum}.webp?v=${CACHE_KEY}`;
-        images[i] = img;
-      }
-
-      currentBatch = end;
-      if (currentBatch < TOTAL_FRAMES) {
-        if ("requestIdleCallback" in window) {
-          (window as unknown as { requestIdleCallback: (cb: () => void, opts: { timeout: number }) => void }).requestIdleCallback(
-            () => loadNextBatch(),
-            { timeout: 70 }
-          );
-        } else {
-          setTimeout(loadNextBatch, 20);
-        }
-      }
-    };
-
-    const timeoutId = setTimeout(loadNextBatch, 50);
-
-    return () => {
-      cancelled = true;
-      clearTimeout(timeoutId);
-    };
-  }, [drawFrame]);
-
-  // Scroll-Driven Animation: ONLY on Desktop (>= 1024px)
-  // On mobile (< 1024px), scroll transform and pinning are completely omitted for pure native 120fps scrolling
+  // Subtle floating entrance & smooth parallax
   useEffect(() => {
     if (typeof window === "undefined" || !heroRef.current) return;
-    if (window.innerWidth < 1024) return; // Completely disabled on mobile/tablet
-
-    const PIN_SCROLL_DISTANCE = 1600;
-
-    const updateFrame = () => {
-      const scrollY = window.scrollY || window.pageYOffset || 0;
-      let targetFrame = 0;
-      let videoTime = 0;
-
-      if (scrollY <= PIN_SCROLL_DISTANCE) {
-        // Phase 1: 0s to 5s (Frames 0 to 119) while pinned
-        const progress = Math.max(0, Math.min(1, scrollY / PIN_SCROLL_DISTANCE));
-        targetFrame = Math.min(119, Math.floor(progress * 119));
-        videoTime = progress * 5.0;
-      } else {
-        // Phase 2: 5s to 8s (Frames 120 to 191) as hero glides off screen
-        const exitDistance = window.innerHeight || 800;
-        const exitProgress = Math.max(0, Math.min(1, (scrollY - PIN_SCROLL_DISTANCE) / exitDistance));
-        targetFrame = Math.min(191, Math.floor(120 + exitProgress * 71));
-        videoTime = 5.0 + exitProgress * 3.0;
-      }
-
-      if (targetFrame !== currentFrameRef.current) {
-        currentFrameRef.current = targetFrame;
-        if (!isDrawingRef.current) {
-          isDrawingRef.current = true;
-          requestAnimationFrame(() => {
-            drawFrame(targetFrame);
-            isDrawingRef.current = false;
-          });
-        }
-      }
-
-      if (videoFallbackRef.current && videoFallbackRef.current.duration) {
-        videoFallbackRef.current.currentTime = videoTime;
-      }
-    };
-
-    window.addEventListener("scroll", updateFrame, { passive: true });
 
     const ctx = gsap.context(() => {
-      // Pinning hero section during Phase 1 on desktop
-      ScrollTrigger.create({
-        trigger: heroRef.current,
-        pin: true,
-        start: "top top",
-        end: `+=${PIN_SCROLL_DISTANCE}`,
-        scrub: true,
-        onUpdate: updateFrame,
-      });
-
-      // Foreground Content Parallax & Smooth Fade
-      if (foregroundContentRef.current) {
-        gsap.to(foregroundContentRef.current, {
-          y: -70,
-          opacity: 0.8,
-          ease: "none",
-          scrollTrigger: {
-            trigger: heroRef.current,
-            start: "top top",
-            end: `+=${PIN_SCROLL_DISTANCE}`,
-            scrub: 1,
-          },
-        });
+      if (portraitRef.current) {
+        gsap.fromTo(
+          portraitRef.current,
+          { opacity: 0, scale: 0.96, y: 20 },
+          { opacity: 1, scale: 1, y: 0, duration: 1, ease: "power2.out" }
+        );
       }
-
-      // Volumetric Light Ray Drift
-      if (lightRaysRef.current) {
-        gsap.to(lightRaysRef.current, {
-          y: -90,
-          rotate: 15,
-          opacity: 0.25,
-          ease: "none",
-          scrollTrigger: {
-            trigger: heroRef.current,
-            start: "top top",
-            end: `+=${PIN_SCROLL_DISTANCE}`,
-            scrub: 1.2,
-          },
-        });
-      }
-
-      // Floating 3D Telemetry Badges Multi-plane Parallax
-      gsap.to(".hero-3d-badge-top", {
-        y: -110,
-        x: 15,
-        rotate: 4,
-        ease: "none",
-        scrollTrigger: {
-          trigger: heroRef.current,
-          start: "top top",
-          end: `+=${PIN_SCROLL_DISTANCE}`,
-          scrub: 1.4,
-        },
-      });
     }, heroRef);
 
-    // Initial frame update on mount
-    updateFrame();
-
-    return () => {
-      window.removeEventListener("scroll", updateFrame);
-      ctx.revert();
-    };
-  }, [drawFrame]);
+    return () => ctx.revert();
+  }, []);
 
   const scrollToWork = () => {
     playUiSound("whoosh");
@@ -254,64 +72,9 @@ export function Hero() {
       id="hero"
       className="relative min-h-screen w-full pt-20 sm:pt-24 pb-6 sm:pb-8 flex flex-col justify-between overflow-hidden px-4 sm:px-6 md:px-8 lg:px-14 bg-gradient-to-b from-[#eaf3f8] via-[#eef6fa] to-[#edf5f9] text-[#090d16] select-none"
     >
-      {/* =========================================================================
-          DESKTOP FULL-SCREEN BACKGROUND SCROLL TRANSFORM (lg:block only)
-          - Paused at Frame 1 on initial load.
-          - Scrubs seamlessly as user scrolls on desktop screens (>=1024px).
-          - Completely omitted on mobile for zero GPU/CPU battery drain.
-          ========================================================================= */}
-      <div
-        ref={backgroundStageRef}
-        className="hidden lg:block absolute inset-0 w-full h-full pointer-events-none z-0 overflow-hidden"
-      >
-        <canvas
-          ref={canvasRef}
-          width={1920}
-          height={960}
-          className="absolute inset-0 w-full h-full object-cover md:object-right block select-none pointer-events-none lg:scale-[0.78] origin-[85%_50%]"
-        />
-
-        {!canvasReady && (
-          <img
-            src={`/videos/hero_frames/frame_001.webp?v=${CACHE_KEY}`}
-            alt="HOANGPHUC 3D Stage Background Still"
-            className="absolute inset-0 w-full h-full object-cover md:object-right block select-none pointer-events-none lg:scale-[0.78] origin-[85%_50%]"
-          />
-        )}
-
-        {/* Artistic left feathered gradient dissolve */}
-        <div className="absolute inset-y-0 left-0 w-[48%] bg-gradient-to-r from-[#eaf3f8] via-[#eaf3f8]/95 via-50% to-transparent pointer-events-none z-10" />
-
-        {/* Atmosphere feather borders */}
-        <div className="absolute inset-x-0 top-0 h-36 bg-gradient-to-b from-[#eaf3f8] via-[#eaf3f8]/80 to-transparent pointer-events-none z-10" />
-        <div className="absolute inset-x-0 bottom-0 h-36 bg-gradient-to-t from-[#edf5f9] via-[#edf5f9]/85 to-transparent pointer-events-none z-10" />
-        <div className="absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-[#eaf3f8]/70 to-transparent pointer-events-none z-10" />
-
-        {/* Fallback All-Intra 8s Video */}
-        <video
-          ref={videoFallbackRef}
-          muted
-          playsInline
-          preload="auto"
-          className="hidden"
-        >
-          <source src={`/videos/hero-scroll-8s.mp4?${CACHE_KEY}`} type="video/mp4" />
-        </video>
-
-        {/* Volumetric Atmospheric Light Rays Extension */}
-        <div
-          ref={lightRaysRef}
-          className="hero-light-ray absolute -top-28 -right-28 w-[80vw] h-[80vw] max-w-[1050px] max-h-[1050px] pointer-events-none -z-10 opacity-70"
-          style={{
-            background:
-              "conic-gradient(from 215deg at 80% 20%, rgba(56,189,248,0.22) 0deg, rgba(255,255,255,0.1) 45deg, transparent 90deg, rgba(56,189,248,0.18) 140deg, transparent 180deg)",
-            filter: "blur(45px)",
-          }}
-        />
-
-        {/* Ambient Soft Cyan Aura */}
-        <div className="absolute top-1/3 right-1/4 w-[48vw] h-[48vw] max-w-[620px] max-h-[620px] rounded-full bg-sky-400/20 blur-[140px] pointer-events-none -z-10" />
-      </div>
+      {/* Ambient background soft light flares */}
+      <div className="absolute top-1/3 right-1/4 w-[48vw] h-[48vw] max-w-[620px] max-h-[620px] rounded-full bg-sky-400/15 blur-[140px] pointer-events-none -z-0" />
+      <div className="absolute top-10 left-10 w-[30vw] h-[30vw] max-w-[400px] max-h-[400px] rounded-full bg-cyan-300/10 blur-[120px] pointer-events-none -z-0" />
 
       {/* =========================================================================
           TOP TELEMETRY / STATUS BAR (Z-20, RESPONSIVE FOR ALL DEVICES)
@@ -344,12 +107,9 @@ export function Hero() {
 
       {/* =========================================================================
           MOBILE VIEW LAYOUT (lg:hidden) - ELEGANT, CRISP, LIGHTWEIGHT & COOL
-          - No text covering the character's face
-          - Framed 3D Stage Visual with floating telemetry
-          - Native 120Hz silky scrolling with zero phone heating
           ========================================================================= */}
       <div className="block lg:hidden z-10 relative my-auto py-3 sm:py-4 space-y-4">
-        {/* 1. Chuyên ngành (Domain & Status Badge) */}
+        {/* 1. Domain & Status Badge */}
         <div className="flex items-center justify-between gap-2">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-sky-400/40 bg-gradient-to-r from-sky-500/10 via-white/95 to-cyan-500/10 backdrop-blur-md shadow-[0_2px_12px_rgba(2,132,199,0.1)]">
             <span className="flex h-2 w-2 relative">
@@ -369,7 +129,6 @@ export function Hero() {
 
         {/* 2. Headline & Artistic Signature Byline */}
         <div className="relative pt-1 space-y-1">
-          {/* Ambient subtle backglow behind name */}
           <div className="absolute -left-4 -top-3 w-48 h-16 bg-sky-400/15 rounded-full blur-2xl pointer-events-none" />
 
           <div className="relative">
@@ -378,7 +137,6 @@ export function Hero() {
             </h1>
           </div>
 
-          {/* Designer Signature Byline */}
           <div className="flex items-center gap-2 pt-0.5">
             <div className="h-[2px] w-6 bg-gradient-to-r from-sky-500 to-transparent rounded-full" />
             <span className="text-xs sm:text-sm font-bold tracking-tight text-slate-800">
@@ -391,11 +149,9 @@ export function Hero() {
           </div>
         </div>
 
-        {/* 3. Sở trường (Core Specialties & Dynamic Superpowers) */}
+        {/* 3. Core Specialties */}
         <div className="space-y-2 pt-0.5">
-          {/* Active Specialty Capsule with Glowing Border */}
           <div className="relative rounded-2xl p-3 bg-gradient-to-r from-slate-950 via-slate-900 to-sky-950 text-white shadow-[0_8px_24px_rgba(2,132,199,0.2)] border border-sky-400/35 overflow-hidden">
-            {/* Ambient internal light */}
             <div className="absolute -right-4 -bottom-4 w-28 h-28 bg-sky-500/20 rounded-full blur-2xl pointer-events-none" />
 
             <div className="flex items-center justify-between mb-1.5 text-[10px] font-mono">
@@ -408,7 +164,6 @@ export function Hero() {
               </span>
             </div>
 
-            {/* Dynamic Title */}
             <div className="h-6 flex items-center text-sm sm:text-base font-bold font-sans tracking-tight text-white">
               <span className="text-sky-400 font-mono mr-1.5">&gt;</span>
               <div key={roleIndex} className="flex items-center">
@@ -420,7 +175,6 @@ export function Hero() {
             </div>
           </div>
 
-          {/* Signature Tech Badges (Highlights) */}
           <div className="flex flex-wrap gap-1.5">
             {[
               { label: "Flutter & Dart", desc: "Cross-Platform", dot: "bg-sky-500" },
@@ -441,30 +195,26 @@ export function Hero() {
           </div>
         </div>
 
-        {/* 4. 3D Character Showcase Card (Crisp, High-Quality, Framed & Non-Overlapping) */}
+        {/* 4. Portrait Image Stage (Using portrait2.png) */}
         <div className="relative rounded-2xl overflow-hidden bg-gradient-to-b from-white/90 via-sky-50/50 to-white/95 border border-sky-200/80 shadow-[0_10px_25px_rgba(2,132,199,0.08)] p-2">
-          {/* Floating tech badges */}
           <div className="absolute top-3.5 left-3.5 z-10 flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/90 backdrop-blur-md border border-slate-200/80 shadow-xs text-[9px] font-mono font-bold text-slate-800">
             <span className="w-1.5 h-1.5 rounded-full bg-sky-500 animate-pulse" />
             <span>3D BUILDER REALM</span>
           </div>
-          
+
           <div className="absolute bottom-3 right-3 z-10 flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-slate-950/85 backdrop-blur-md border border-sky-400/30 shadow-xs text-[9px] font-mono font-bold text-sky-200">
             <span className="text-sky-400 font-bold">&lt;/&gt;</span>
             <span>MOBILE & AI</span>
           </div>
 
           <img
-            src="/images/hero-mobile-stage.webp"
-            alt="HOANGPHUC - Mobile & Software Engineer 3D Stage"
-            width={960}
-            height={744}
+            src="/images/portrait2.png"
+            alt="HOANGPHUC - Mobile & Software Engineer"
+            className="w-full h-auto rounded-xl object-contain drop-shadow-md"
             loading="eager"
             decoding="async"
-            className="w-full h-auto rounded-xl object-cover"
           />
 
-          {/* Ambient bottom dissolve inside card */}
           <div className="absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-white/80 to-transparent pointer-events-none" />
         </div>
 
@@ -520,14 +270,14 @@ export function Hero() {
       </div>
 
       {/* =========================================================================
-          DESKTOP VIEW FOREGROUND CONTENT (lg:flex) - WITH PARALLAX & DUAL-COLUMN
+          DESKTOP VIEW FOREGROUND CONTENT (lg:flex) - FEATURING PORTRAIT2.PNG
           ========================================================================= */}
       <div
         ref={foregroundContentRef}
-        className="hidden lg:flex my-auto py-6 z-10 relative flex-row items-center justify-between gap-8 will-change-transform"
+        className="hidden lg:flex my-auto py-6 z-10 relative flex-row items-center justify-between gap-8 lg:gap-12 will-change-transform"
       >
         {/* Left Column: Glassmorphic Typography & Action Deck */}
-        <div className="w-full max-w-[580px] flex flex-col justify-center space-y-5">
+        <div className="w-full max-w-[540px] xl:max-w-[580px] flex flex-col justify-center space-y-5">
           {/* 1. Category Pill */}
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-sky-500/30 bg-white/90 backdrop-blur-xl w-fit shadow-sm">
             <span className="text-sky-600 font-mono font-bold text-xs">#</span>
@@ -567,7 +317,7 @@ export function Hero() {
           </div>
 
           {/* 4. Bio Paragraph */}
-          <div className="p-4 rounded-2xl bg-white/60 backdrop-blur-md border border-white/80 shadow-[0_8px_24px_rgba(56,189,248,0.06)] max-w-lg">
+          <div className="p-4 rounded-2xl bg-white/70 backdrop-blur-md border border-white/80 shadow-[0_8px_24px_rgba(56,189,248,0.06)] max-w-lg">
             <p className="text-sm text-slate-700 leading-relaxed font-medium">
               {locale === "vi"
                 ? "Tôi phát triển các ứng dụng di động và hệ thống phần mềm kết hợp trải nghiệm người dùng tinh tế, kiến trúc backend tin cậy và công nghệ thông minh."
@@ -617,16 +367,34 @@ export function Hero() {
           </div>
         </div>
 
-        {/* Right Floating Telemetry Accents */}
-        <div className="flex flex-col items-end justify-between self-stretch py-3 pointer-events-none">
-          <div className="hero-3d-badge-top px-2.5 py-1 rounded-full bg-white/95 border border-slate-200/90 backdrop-blur-xl shadow-sm flex items-center gap-1.5 text-[10px] font-mono font-bold text-slate-800 transition-transform">
-            <span className="text-sky-600 font-mono font-black text-[9px]">&lt;/&gt;</span>
-            <span>CODE · BUILD · IMPACT</span>
-          </div>
+        {/* Right Column: Featured portrait2.png 3D Artwork Realm */}
+        <div
+          ref={portraitRef}
+          className="flex-1 relative flex items-center justify-center max-w-[720px] xl:max-w-[820px] will-change-transform"
+        >
+          {/* Ambient soft glow */}
+          <div className="absolute inset-0 bg-sky-400/20 blur-[100px] rounded-full pointer-events-none -z-0" />
 
-          <div className="px-2.5 py-1 rounded-full bg-sky-500/10 border border-sky-500/25 text-[9px] font-mono font-semibold text-sky-800 flex items-center gap-1.5 shadow-xs backdrop-blur-md">
-            <Sparkles className="w-2.5 h-2.5 text-sky-600 animate-pulse" />
-            <span>SCROLL TO TRANSFORM (5s / 8s)</span>
+          {/* Glass stage container framing portrait2.png */}
+          <div className="relative w-full rounded-3xl p-3 bg-white/40 dark:bg-slate-900/40 backdrop-blur-md border border-white/80 dark:border-white/10 shadow-[0_20px_50px_rgba(2,132,199,0.14)] overflow-hidden">
+            {/* Top Telemetry Pills */}
+            <div className="absolute top-6 left-6 z-10 flex items-center gap-2 px-3 py-1 rounded-full bg-white/90 backdrop-blur-md border border-slate-200/90 shadow-xs text-[10px] font-mono font-bold text-slate-800">
+              <span className="w-2 h-2 rounded-full bg-sky-500 animate-pulse" />
+              <span>3D BUILDER REALM</span>
+            </div>
+
+            <div className="absolute bottom-6 right-6 z-10 flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-950/85 backdrop-blur-md border border-sky-400/30 shadow-md text-[10px] font-mono font-bold text-sky-200">
+              <span className="text-sky-400 font-bold">&lt;/&gt;</span>
+              <span>MOBILE &amp; APPLIED AI</span>
+            </div>
+
+            <img
+              src="/images/portrait2.png"
+              alt="HOANGPHUC - Mobile & Software Engineer"
+              className="w-full h-auto object-contain rounded-2xl drop-shadow-[0_15px_35px_rgba(2,132,199,0.2)]"
+              loading="eager"
+              decoding="async"
+            />
           </div>
         </div>
       </div>
