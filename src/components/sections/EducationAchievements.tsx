@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { usePortfolio } from "@/context/PortfolioContext";
@@ -14,13 +14,8 @@ import {
   ChevronLeft,
   ChevronRight,
   ArrowRight,
-  X,
-  ExternalLink,
-  ShieldCheck,
   Calendar,
-  Sparkles,
   CheckCircle2,
-  Maximize2,
 } from "lucide-react";
 
 if (typeof window !== "undefined") {
@@ -35,18 +30,15 @@ interface AchievementItem {
   organization: { en: string; vi: string };
   period: string;
   summary: { en: string; vi: string };
-  description: { en: string; vi: string };
   iconType: "code" | "globe" | "trophy" | "languages" | "award";
   credentialCode?: string;
   scoreOrHonor?: string;
-  image: string;
-  signatories?: { name: string; title: string }[];
 }
 
 const ACHIEVEMENTS_DATA: AchievementItem[] = [
   {
     id: "umt-degree",
-    badge: { en: "Degree · B.S.", vi: "Cử Nhân Chính Quy" },
+    badge: { en: "Certificate", vi: "Văn Bằng" },
     badgeType: "degree",
     title: {
       en: "Bachelor of Information Technology – Software Engineering",
@@ -58,25 +50,16 @@ const ACHIEVEMENTS_DATA: AchievementItem[] = [
     },
     period: "Mar. 2021 – Mar. 2025",
     summary: {
-      en: "Graduated with a strong foundation in Software Engineering and mobile architecture.",
-      vi: "Tốt nghiệp nền tảng chuyên sâu về Kỹ thuật Phần mềm, ứng dụng di động và kiến trúc đám mây.",
-    },
-    description: {
-      en: "Rigorous academic curriculum covering software architecture, mobile systems development, distributed databases, cloud microservices, and AI integrations. Maintained excellent cumulative performance.",
-      vi: "Chương trình đào tạo chuyên sâu về kiến trúc phần mềm, phát triển ứng dụng di động, cơ sở dữ liệu phân tán, vi dịch vụ đám mây và ứng dụng trí tuệ nhân tạo.",
+      en: "Graduated with a strong foundation in Software Engineering.",
+      vi: "Tốt nghiệp với nền tảng vững chắc về Kỹ thuật Phần mềm và kiến trúc hệ thống.",
     },
     iconType: "code",
     credentialCode: "UMT-IT-SE-2025",
     scoreOrHonor: "GPA: 3.23 / 4.0",
-    image: "/images/certificates/cert-2-icpc-volunteer.png",
-    signatories: [
-      { name: "PGS. TS. Trần Đan Thư", title: "Trưởng Khoa Công nghệ UMT" },
-      { name: "Huỳnh Thúy Phương", title: "Phó Hiệu trưởng UMT" },
-    ],
   },
   {
     id: "unj-fellowship",
-    badge: { en: "Global Fellowship", vi: "Học Bổng Quốc Tế" },
+    badge: { en: "Certificate", vi: "Học Bổng" },
     badgeType: "fellowship",
     title: {
       en: "Industrial Immersion Camp – Global Climate Resilience",
@@ -88,33 +71,23 @@ const ACHIEVEMENTS_DATA: AchievementItem[] = [
     },
     period: "Dec. 2024 – Jan. 2025",
     summary: {
-      en: "Gained practical experience in climate resilience and enterprise IoT solutions.",
-      vi: "Tích lũy kinh nghiệm thực tế về công nghệ khí hậu, IoT và giải pháp đô thị thông minh.",
-    },
-    description: {
-      en: "Selected for prestigious international academic-industrial exchange in Jakarta, Indonesia. Collaborated with international teams on real-time climate risk telemetry and smart city solutions.",
-      vi: "Được tuyển chọn tham gia chương trình học bổng trao đổi quốc tế tại Jakarta, Indonesia. Hợp tác cùng các nhóm kỹ sư quốc tế giải quyết bài toán dữ liệu thiên tai và thành phố thông minh.",
+      en: "Gained practical experience in climate and sustainability projects.",
+      vi: "Tích lũy kinh nghiệm thực tế về các dự án công nghệ khí hậu và phát triển bền vững.",
     },
     iconType: "globe",
     credentialCode: "HP-CERT-03",
     scoreOrHonor: "Global Citizen Fellowship",
-    image: "/images/certificates/cert-3-global-citizen-fellowship.png",
-    signatories: [
-      { name: "Andy Hadiyanto", title: "Vice Rector for Cooperation, Universitas Negeri Jakarta" },
-      { name: "Huỳnh Thúy Phương", title: "Vice President, UMT Ho Chi Minh City" },
-      { name: "Ignatius Hendrasmo", title: "President Director, Radio Republik Indonesia" },
-    ],
   },
   {
     id: "vpbank-hackathon",
-    badge: { en: "★ Hackathon Winner", vi: "★ Giải Thưởng Hackathon" },
+    badge: { en: "Award", vi: "Giải Thưởng" },
     badgeType: "award",
     title: {
       en: "VPBank Technology Hackathon 2025",
       vi: "VPBank Technology Hackathon 2025",
     },
     organization: {
-      en: "VietNam – Ho Chi Minh City (AWS Cloud)",
+      en: "VietNam – Ho Chi Minh City",
       vi: "VPBank & AWS Vietnam · TP. Hồ Chí Minh",
     },
     period: "29 Nov. 2024 – 01 Dec. 2024",
@@ -122,23 +95,13 @@ const ACHIEVEMENTS_DATA: AchievementItem[] = [
       en: "Achieved excellence in a high-tech hackathon, showcasing innovation and teamwork.",
       vi: "Đạt thành tích xuất sắc tại cuộc thi hackathon công nghệ cao, thể hiện năng lực sáng tạo và phối hợp nhóm.",
     },
-    description: {
-      en: "High-intensity innovation competition solving modern enterprise fintech and digital verification challenges on Amazon Web Services (AWS) infrastructure. Built an end-to-end intelligent customer intelligence platform.",
-      vi: "Cuộc thi lập trình công nghệ cao giải quyết bài toán dữ liệu fintech và xác thực số trên nền tảng điện toán đám mây AWS. Đội thi VeraGuard xây dựng giải pháp phân tích tài chính thông minh.",
-    },
     iconType: "trophy",
     credentialCode: "HP-CERT-01",
     scoreOrHonor: "Honor Recipient · Team VeraGuard",
-    image: "/images/certificates/cert-1-vpbank-hackathon.png",
-    signatories: [
-      { name: "Wong Kok Seng Augustine", title: "Chief Information Officer, VPBank" },
-      { name: "Tran Thi Diep Anh", title: "Chief Human Resources Officer, VPBank" },
-      { name: "Eric Yeo", title: "Country Manager, AWS Vietnam" },
-    ],
   },
   {
     id: "english-proficiency",
-    badge: { en: "CEFR B1 · VSTEP", vi: "Chứng Chỉ VSTEP 5.5" },
+    badge: { en: "Certificate", vi: "Chứng Chỉ" },
     badgeType: "certificate",
     title: {
       en: "English Level B1 – VSTEP Certificate 5.5",
@@ -150,24 +113,16 @@ const ACHIEVEMENTS_DATA: AchievementItem[] = [
     },
     period: "25 Dec. 2024",
     summary: {
-      en: "Certified English proficiency at B1 level (CEFR B1 Equivalent).",
+      en: "Certified English proficiency at B1 level.",
       vi: "Chứng nhận trình độ tiếng Anh đạt chuẩn CEFR B1 (Bậc 3/6).",
-    },
-    description: {
-      en: "Official VSTEP Level B1 (Score 5.5/10). Solid technical comprehension of software architecture documentation, engineering specifications, RFCs, and collaborative international teamwork.",
-      vi: "Chứng chỉ ngoại ngữ quốc gia VSTEP điểm 5.5/10. Khả năng đọc hiểu tài liệu kỹ thuật, chuẩn RFC, phân tích kiến trúc phần mềm và làm việc hiệu quả trong môi trường công nghệ quốc tế.",
     },
     iconType: "languages",
     credentialCode: "VSTEP-B1-5.5",
     scoreOrHonor: "VSTEP Score: 5.5 / 10",
-    image: "/images/certificates/cert-4-best-presentation-unj.png",
-    signatories: [
-      { name: "Hội đồng Khảo thí Ngoại ngữ Quốc gia", title: "Trung tâm Đánh giá Năng lực Ngoại ngữ" },
-    ],
   },
   {
     id: "maker-scholarship",
-    badge: { en: "Merit · 175M VNĐ", vi: "Học Bổng Maker 175M" },
+    badge: { en: "Certificate", vi: "Chứng Chỉ" },
     badgeType: "scholarship",
     title: {
       en: "English for Academic Purposes & Maker Honors",
@@ -182,28 +137,17 @@ const ACHIEVEMENTS_DATA: AchievementItem[] = [
       en: "Completed advanced English course and honored with prestigious 175M Maker Scholarship.",
       vi: "Hoàn thành chương trình tiếng Anh học thuật nâng cao và vinh dự nhận Học bổng Maker 175 triệu đồng.",
     },
-    description: {
-      en: "Awarded the highly competitive 175,000,000 VNĐ UMT Maker Scholarship in recognition of creative technological potential, academic integrity, and dedicated software craftsmanship.",
-      vi: "Được trao tặng Học bổng Maker danh giá trị giá 175.000.000 VNĐ nhờ tiềm năng sáng tạo công nghệ, thành tích học tập vượt trội và tinh thần phụng sự cộng đồng.",
-    },
     iconType: "award",
     credentialCode: "HP-CERT-05",
     scoreOrHonor: "175M VNĐ Maker Scholarship",
-    image: "/images/certificates/cert-5-icreal-member.png",
-    signatories: [
-      { name: "Lê Thị Ngọc Tú, PhD.", title: "Dean of Business & Technology School, UMT" },
-      { name: "Hội đồng Học bổng UMT", title: "Ban Giám hiệu UMT" },
-    ],
   },
 ];
 
 export function EducationAchievements() {
-  const { locale, playUiSound, theme } = usePortfolio();
-  const isDark = theme === "dark";
+  const { locale, playUiSound } = usePortfolio();
 
   // Center card (VPBank Hackathon) is active by default
   const [activeIndex, setActiveIndex] = useState<number>(2);
-  const [modalItem, setModalItem] = useState<AchievementItem | null>(null);
   const sectionRef = useRef<HTMLElement>(null);
 
   // Recalculate ScrollTrigger on mount and layout settle so scrolling never freezes
@@ -227,17 +171,13 @@ export function EducationAchievements() {
   // Keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (modalItem) {
-        if (e.key === "Escape") setModalItem(null);
-        return;
-      }
       if (e.key === "ArrowLeft") prevCard();
       if (e.key === "ArrowRight") nextCard();
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [modalItem, prevCard, nextCard]);
+  }, [prevCard, nextCard]);
 
   const renderIcon = (type: AchievementItem["iconType"], isActive: boolean) => {
     const baseClass = "w-5 h-5 transition-transform duration-300";
@@ -264,8 +204,6 @@ export function EducationAchievements() {
     >
       {/* =========================================================================
           AUTHENTIC 3D CRYSTAL TROPHY (DUAL ADAPTIVE: LIGHT & DARK CROSS-FADE)
-          - Light mode image displays in light theme.
-          - Dark mode image displays in dark theme with silky smooth 700ms cross-fade.
           ========================================================================= */}
       <div className="absolute top-0 right-0 w-[520px] sm:w-[680px] md:w-[820px] lg:w-[980px] pointer-events-none select-none -z-0">
         {/* Light Mode Backdrop */}
@@ -390,11 +328,11 @@ export function EducationAchievements() {
 
         {/* --- 3D INTERACTIVE ACHIEVEMENT CAROUSEL --- */}
         <div
-          className="relative w-full h-[520px] sm:h-[550px] md:h-[580px] flex items-center justify-center select-none"
+          className="relative w-full h-[450px] sm:h-[480px] md:h-[500px] flex items-center justify-center select-none"
           style={{ perspective: 1400 }}
         >
           {/* Luminous blue pedestal glow under center card */}
-          <div className="absolute bottom-6 sm:bottom-8 left-1/2 -translate-x-1/2 w-[340px] sm:w-[420px] md:w-[500px] h-16 pointer-events-none -z-0">
+          <div className="absolute bottom-6 sm:bottom-8 left-1/2 -translate-x-1/2 w-[340px] sm:w-[420px] md:w-[480px] h-14 pointer-events-none -z-0">
             <div className="w-full h-full bg-gradient-to-r from-transparent via-sky-500/40 to-transparent blur-2xl" />
             <div className="absolute bottom-2 inset-x-12 h-1.5 rounded-full bg-sky-400/80 blur-xs" />
           </div>
@@ -433,7 +371,7 @@ export function EducationAchievements() {
               return (
                 <motion.div
                   key={item.id}
-                  className="absolute top-1/2 -translate-y-1/2 w-[85vw] sm:w-[380px] md:w-[410px] lg:w-[430px] will-change-transform"
+                  className="absolute top-1/2 -translate-y-1/2 w-[85vw] sm:w-[370px] md:w-[390px] lg:w-[410px] will-change-transform cursor-pointer"
                   style={{
                     zIndex,
                     transformStyle: "preserve-3d",
@@ -452,16 +390,11 @@ export function EducationAchievements() {
                     mass: 0.8,
                   }}
                   onClick={() => {
-                    if (isActive) {
-                      playUiSound("click");
-                      setModalItem(item);
-                    } else {
-                      playUiSound("switch");
-                      setActiveIndex(index);
-                    }
+                    playUiSound("switch");
+                    setActiveIndex(index);
                   }}
                 >
-                  {/* The Artistic Vitrine Monolith Card */}
+                  {/* The Pure Glass Achievement Card */}
                   <div
                     className={`relative rounded-[28px] sm:rounded-[32px] p-6 sm:p-7 md:p-8 backdrop-blur-2xl transition-all duration-300 border overflow-hidden ${
                       isActive
@@ -472,13 +405,8 @@ export function EducationAchievements() {
                     {/* Top Specular Rim Lighting Glint */}
                     <div className="absolute top-0 inset-x-8 h-[1.5px] bg-gradient-to-r from-transparent via-sky-400/80 to-transparent pointer-events-none" />
 
-                    {/* Faint Architectural Monogram Watermark */}
-                    <div className="absolute top-2.5 right-4 font-mono text-5xl font-black text-slate-900/[0.04] dark:text-sky-300/[0.06] select-none pointer-events-none tracking-tighter">
-                      0{index + 1}
-                    </div>
-
-                    {/* Top Row: 3D Squircle Icon + Badge Capsule */}
-                    <div className="flex items-center justify-between mb-4 relative z-10">
+                    {/* Top Row: 3D Squircle Icon + Badge Pill */}
+                    <div className="flex items-center justify-between mb-5 relative z-10">
                       <div
                         className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all ${
                           isActive
@@ -501,37 +429,9 @@ export function EducationAchievements() {
                       </span>
                     </div>
 
-                    {/* Miniature Interactive Certificate Hologram Preview */}
-                    <div
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        playUiSound("click");
-                        setModalItem(item);
-                      }}
-                      className="relative w-full h-24 sm:h-28 rounded-xl overflow-hidden mb-4 border border-slate-200/90 dark:border-slate-800/90 bg-slate-950/5 dark:bg-black/50 group/thumb cursor-pointer shadow-inner"
-                      title={locale === "vi" ? "Nhấn để phóng to chứng chỉ" : "Click to inspect certificate"}
-                    >
-                      <img
-                        src={item.image}
-                        alt={item.title.en}
-                        className="w-full h-full object-cover object-top transition-transform duration-500 group-hover/thumb:scale-105"
-                        loading="lazy"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950/75 via-transparent to-transparent flex items-end justify-between p-2 sm:p-2.5">
-                        <span className="text-[9px] font-mono font-bold text-white/95 uppercase flex items-center gap-1 drop-shadow-xs">
-                          <ShieldCheck className="w-3 h-3 text-sky-400" />
-                          <span>{item.credentialCode}</span>
-                        </span>
-                        <span className="text-[9px] font-mono text-sky-300 font-semibold group-hover/thumb:underline flex items-center gap-0.5">
-                          <span>{locale === "vi" ? "Xem bản gốc" : "Inspect"}</span>
-                          <Maximize2 className="w-2.5 h-2.5" />
-                        </span>
-                      </div>
-                    </div>
-
                     {/* Card Title */}
                     <h3
-                      className={`text-base sm:text-lg font-black tracking-tight leading-snug mb-1 transition-colors line-clamp-2 ${
+                      className={`text-lg sm:text-xl font-black tracking-tight leading-snug mb-1.5 transition-colors line-clamp-2 ${
                         isActive
                           ? "text-[var(--text-primary)]"
                           : "text-slate-700 dark:text-slate-300"
@@ -541,41 +441,40 @@ export function EducationAchievements() {
                     </h3>
 
                     {/* Organization / Location */}
-                    <div className="text-xs font-semibold text-[var(--text-secondary)] mb-3 line-clamp-1">
+                    <div className="text-xs sm:text-[13px] font-semibold text-[var(--text-secondary)] mb-4 line-clamp-1">
                       {locale === "vi" ? item.organization.vi : item.organization.en}
                     </div>
 
                     {/* Period Pill with Calendar Icon */}
-                    <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100/90 dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-700/80 text-[10.5px] font-mono text-slate-600 dark:text-slate-300 mb-3 font-medium">
+                    <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100/90 dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-700/80 text-[11px] font-mono text-slate-600 dark:text-slate-300 mb-4 font-medium">
                       <Calendar className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" />
                       <span>{item.period}</span>
                     </div>
 
                     {/* Summary Description */}
-                    <p className="text-xs text-[var(--text-secondary)] leading-relaxed mb-5 line-clamp-2 font-normal">
+                    <p className="text-xs sm:text-[13px] text-[var(--text-secondary)] leading-relaxed mb-6 line-clamp-3 font-normal">
                       {locale === "vi" ? item.summary.vi : item.summary.en}
                     </p>
 
                     {/* Bottom Action Footer */}
-                    <div className="pt-3 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between">
+                    <div className="pt-3.5 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between">
                       <span className="text-[11px] font-mono font-bold text-sky-600/80 dark:text-sky-400/80 flex items-center gap-1.5">
                         <CheckCircle2 className="w-3.5 h-3.5 text-sky-500" />
                         <span>{item.scoreOrHonor || "VERIFIED"}</span>
                       </span>
 
-                      {/* Interactive View Button */}
+                      {/* Interactive Next Card Button */}
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          playUiSound("click");
-                          setModalItem(item);
+                          nextCard();
                         }}
-                        className={`w-8 h-8 rounded-full flex items-center justify-center transition-all cursor-pointer ${
+                        className={`w-9 h-9 rounded-full flex items-center justify-center transition-all cursor-pointer ${
                           isActive
                             ? "bg-sky-50 dark:bg-sky-950/70 border border-sky-300/90 text-sky-600 dark:text-sky-400 hover:scale-110 hover:bg-sky-500 hover:text-white shadow-xs"
-                            : "text-slate-400 opacity-60"
+                            : "text-slate-400 opacity-60 hover:opacity-100"
                         }`}
-                        title={locale === "vi" ? "Xem chi tiết chứng chỉ" : "View certificate details"}
+                        title={locale === "vi" ? "Chuyển sang thành tích tiếp theo" : "Next achievement"}
                       >
                         <ArrowRight className="w-4 h-4" />
                       </button>
@@ -606,142 +505,6 @@ export function EducationAchievements() {
           ))}
         </div>
       </div>
-
-      {/* --- CERTIFICATE / ACHIEVEMENT DETAIL MODAL --- */}
-      <AnimatePresence>
-        {modalItem && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={() => setModalItem(null)}
-            className="fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-md flex items-center justify-center p-4 sm:p-6"
-          >
-            <motion.div
-              initial={{ scale: 0.94, opacity: 0, y: 20 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.95, opacity: 0, y: 15 }}
-              transition={{ type: "spring", stiffness: 320, damping: 28 }}
-              onClick={(e) => e.stopPropagation()}
-              className="relative w-full max-w-2xl bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
-            >
-              {/* Modal Header */}
-              <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex items-start justify-between gap-4">
-                <div>
-                  <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-sky-50 dark:bg-sky-950/60 border border-sky-200 dark:border-sky-800 text-sky-600 dark:text-sky-400 font-mono text-[10px] font-bold uppercase mb-2">
-                    <ShieldCheck className="w-3.5 h-3.5 text-sky-500" />
-                    <span>VERIFIED ACADEMIC RECORD</span>
-                  </div>
-                  <h3 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white leading-tight">
-                    {locale === "vi" ? modalItem.title.vi : modalItem.title.en}
-                  </h3>
-                  <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
-                    {locale === "vi" ? modalItem.organization.vi : modalItem.organization.en}
-                  </p>
-                </div>
-
-                <button
-                  onClick={() => setModalItem(null)}
-                  className="w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 flex items-center justify-center text-slate-500 dark:text-slate-400 transition-colors cursor-pointer shrink-0"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-
-              {/* Modal Body */}
-              <div className="p-6 overflow-y-auto space-y-6">
-                {/* Official Certificate Image Preview */}
-                {modalItem.image && (
-                  <div className="relative w-full rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-950/5 dark:bg-black/50 aspect-16/10 flex items-center justify-center">
-                    <img
-                      src={modalItem.image}
-                      alt={modalItem.title.en}
-                      className="w-full h-full object-contain"
-                    />
-                  </div>
-                )}
-
-                {/* Key Attributes Grid */}
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                  <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800">
-                    <div className="text-[10px] font-mono text-slate-400 uppercase">DATE CONFERRED</div>
-                    <div className="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200 mt-0.5">
-                      {modalItem.period}
-                    </div>
-                  </div>
-
-                  <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800">
-                    <div className="text-[10px] font-mono text-slate-400 uppercase">CLASSIFICATION</div>
-                    <div className="text-xs sm:text-sm font-bold text-sky-600 dark:text-sky-400 mt-0.5">
-                      {modalItem.scoreOrHonor || "Good Standing"}
-                    </div>
-                  </div>
-
-                  <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 col-span-2 sm:col-span-1">
-                    <div className="text-[10px] font-mono text-slate-400 uppercase">RECORD ID</div>
-                    <div className="text-xs sm:text-sm font-bold font-mono text-slate-800 dark:text-slate-200 mt-0.5">
-                      {modalItem.credentialCode || "VERIFIED"}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Comprehensive Description */}
-                <div>
-                  <h4 className="text-xs font-mono font-bold text-slate-400 uppercase mb-2">
-                    {locale === "vi" ? "Chi Tiết Chứng Nhận" : "Credentials & Scope"}
-                  </h4>
-                  <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
-                    {locale === "vi" ? modalItem.description.vi : modalItem.description.en}
-                  </p>
-                </div>
-
-                {/* Signatories */}
-                {modalItem.signatories && modalItem.signatories.length > 0 && (
-                  <div className="pt-4 border-t border-slate-100 dark:border-slate-800">
-                    <h4 className="text-xs font-mono font-bold text-slate-400 uppercase mb-3">
-                      {locale === "vi" ? "Cơ Quan & Lãnh Đạo Ký Xác Nhận" : "Accredited Signatories"}
-                    </h4>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      {modalItem.signatories.map((sig, i) => (
-                        <div
-                          key={i}
-                          className="p-3 rounded-xl bg-slate-50/80 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800"
-                        >
-                          <div className="text-xs font-bold text-slate-800 dark:text-slate-200">
-                            {sig.name}
-                          </div>
-                          <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
-                            {sig.title}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Modal Footer */}
-              <div className="p-4 sm:p-5 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 flex items-center justify-between">
-                <span className="text-xs text-slate-500 font-mono flex items-center gap-1.5">
-                  <CheckCircle2 className="w-4 h-4 text-sky-500" />
-                  <span>Officially Verified Archive</span>
-                </span>
-
-                <button
-                  onClick={() => {
-                    setModalItem(null);
-                    document.getElementById("certificates")?.scrollIntoView({ behavior: "smooth" });
-                  }}
-                  className="px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold flex items-center gap-1.5 shadow-sm transition-all"
-                >
-                  <span>{locale === "vi" ? "Xem Trong Bảo Tàng Số" : "Explore In Museum"}</span>
-                  <ExternalLink className="w-3.5 h-3.5" />
-                </button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </section>
   );
 }
