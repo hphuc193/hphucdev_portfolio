@@ -6,6 +6,8 @@ import { usePortfolio } from "@/context/PortfolioContext";
 import { CounterBadge } from "@/hooks/useCounter";
 import { ArrowRight, Play, Code2, Users, Star, ChevronRight } from "lucide-react";
 
+const HERO_IMG_VERSION = "v4k";
+
 export function Hero() {
   const { locale, playUiSound } = usePortfolio();
   const heroRef = useRef<HTMLElement>(null);
@@ -18,9 +20,13 @@ export function Hero() {
       gsap.fromTo(
         ".hero-reveal",
         { opacity: 0, y: 24 },
-        { opacity: 1, y: 0, duration: 0.8, stagger: 0.08, ease: "power3.out", delay: 0.15 }
+        { opacity: 1, y: 0, duration: 0.8, stagger: 0.08, ease: "power3.out", delay: 0.1 }
       );
-      gsap.fromTo(".hero-bg", { scale: 1.06 }, { scale: 1, duration: 1.6, ease: "power2.out" });
+      gsap.fromTo(
+        ".hero-bg",
+        { scale: 1.035 },
+        { scale: 1, duration: 1.3, ease: "power2.out", clearProps: "transform,scale" }
+      );
     }, heroRef);
     return () => ctx.revert();
   }, []);
@@ -42,21 +48,22 @@ export function Hero() {
       id="hero"
       className="relative w-full min-h-screen lg:h-screen lg:min-h-[680px] overflow-hidden bg-[#dbe7fd] dark:bg-[#060a16] select-none"
     >
-      {/* ===== Background artwork (desktop: full-bleed) ===== */}
+      {/* ===== Background artwork (desktop: full-bleed 4K super-resolved, zero milky fog in light mode) ===== */}
       <div className="hidden lg:block absolute inset-0 overflow-hidden">
         <img
-          src="/images/hero-bg.webp"
+          src={`/images/hero-bg-4k.webp?${HERO_IMG_VERSION}`}
+          srcSet={`/images/hero-bg-mobile.webp?${HERO_IMG_VERSION} 1600w, /images/hero-bg.webp?${HERO_IMG_VERSION} 2560w, /images/hero-bg-4k.webp?${HERO_IMG_VERSION} 3840w`}
+          sizes="100vw"
           alt=""
           aria-hidden
+          fetchPriority="high"
+          decoding="sync"
           className="hero-bg absolute inset-0 w-full h-full object-cover object-[70%_center]"
-          loading="eager"
-          decoding="async"
         />
-        {/* Light: soft left wash for legibility */}
-        <div className="absolute inset-y-0 left-0 w-[55%] bg-gradient-to-r from-[#e6eefe]/85 via-[#e6eefe]/45 to-transparent dark:from-[#050914]/90 dark:via-[#050914]/60" />
-        {/* Dark mode tint over the whole artwork */}
-        <div className="absolute inset-0 bg-transparent dark:bg-[#040814]/55 transition-colors duration-700" />
-        <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[var(--bg-base)] to-transparent" />
+        {/* Dark mode only: legibility & mood overlay */}
+        <div className="hidden dark:block absolute inset-y-0 left-0 w-[55%] bg-gradient-to-r from-[#050914]/90 via-[#050914]/55 to-transparent pointer-events-none" />
+        <div className="hidden dark:block absolute inset-0 bg-[#040814]/50 pointer-events-none" />
+        <div className="hidden dark:block absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-[var(--bg-base)] to-transparent pointer-events-none" />
       </div>
 
       {/* ===== Content ===== */}
@@ -64,12 +71,12 @@ export function Hero() {
         <div className="w-full lg:max-w-[560px] xl:max-w-[600px]">
           {/* Eyebrow */}
           <div className="hero-reveal flex items-center gap-3 mb-6">
-            <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/80 dark:bg-white/10 backdrop-blur-md border border-white dark:border-white/15 shadow-sm text-[12px] font-semibold text-slate-800 dark:text-slate-100">
+            <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/85 dark:bg-white/10 backdrop-blur-md border border-white dark:border-white/15 shadow-sm text-[12px] font-semibold text-slate-800 dark:text-slate-100">
               <span className="w-2 h-2 rounded-full bg-[#2563EB] shadow-[0_0_8px_#2563EB]" />
               Software Engineer
             </span>
             <span className="h-4 w-px bg-slate-400/60" />
-            <span className="inline-flex items-center gap-1 text-[12px] font-medium text-slate-600 dark:text-slate-300">
+            <span className="inline-flex items-center gap-1 text-[12px] font-medium text-slate-700 dark:text-slate-300">
               {isVi ? "Luôn kiến tạo tốt hơn" : "Always Building Better"}
               <ChevronRight className="w-3.5 h-3.5" />
             </span>
@@ -168,10 +175,12 @@ export function Hero() {
         {/* Mobile / tablet artwork (no text over the face) */}
         <div className="lg:hidden hero-reveal mt-10 -mx-5 sm:-mx-8">
           <img
-            src="/images/hero-bg.webp"
+            src={`/images/hero-bg-mobile.webp?${HERO_IMG_VERSION}`}
+            srcSet={`/images/hero-bg-mobile.webp?${HERO_IMG_VERSION} 1600w, /images/hero-bg.webp?${HERO_IMG_VERSION} 2560w`}
+            sizes="100vw"
             alt="HOANGPHUC 3D developer realm"
             className="w-full h-[300px] sm:h-[420px] object-cover object-[72%_center]"
-            loading="eager"
+            fetchPriority="high"
             decoding="async"
           />
         </div>
@@ -180,16 +189,16 @@ export function Hero() {
       {/* Scroll Down indicator */}
       <button
         onClick={() => scrollTo("about")}
-        className="hidden lg:flex absolute bottom-6 left-1/2 -translate-x-1/2 z-10 flex-col items-center gap-2 text-xs text-slate-600 dark:text-slate-300 cursor-pointer"
+        className="hidden lg:flex absolute bottom-6 left-1/2 -translate-x-1/2 z-10 flex-col items-center gap-2 text-xs font-medium text-slate-700 dark:text-slate-200 drop-shadow-[0_1px_6px_rgba(255,255,255,0.9)] dark:drop-shadow-none cursor-pointer"
         aria-label="Scroll down"
       >
-        <span className="w-6 h-9 rounded-full border-2 border-slate-500/70 dark:border-slate-300/70 flex justify-center pt-1.5">
+        <span className="w-6 h-9 rounded-full border-2 border-slate-600/80 dark:border-slate-300/70 bg-white/40 dark:bg-black/25 backdrop-blur-xs flex justify-center pt-1.5">
           <span className="w-1 h-2 rounded-full bg-[#2563EB] animate-bounce" />
         </span>
         <span className="flex items-center gap-3">
-          <span className="w-8 h-px bg-slate-400/70" />
+          <span className="w-8 h-px bg-slate-500/70 dark:bg-slate-400/70" />
           Scroll Down
-          <span className="w-8 h-px bg-slate-400/70" />
+          <span className="w-8 h-px bg-slate-500/70 dark:bg-slate-400/70" />
         </span>
       </button>
     </section>
