@@ -6,8 +6,6 @@ import { usePortfolio } from "@/context/PortfolioContext";
 import { CounterBadge } from "@/hooks/useCounter";
 import { ArrowRight, Play, Code2, Users, Star, ChevronRight } from "lucide-react";
 
-const HERO_IMG_VERSION = "v4k";
-
 export function Hero() {
   const { locale, playUiSound } = usePortfolio();
   const heroRef = useRef<HTMLElement>(null);
@@ -19,13 +17,8 @@ export function Hero() {
     const ctx = gsap.context(() => {
       gsap.fromTo(
         ".hero-reveal",
-        { opacity: 0, y: 24 },
-        { opacity: 1, y: 0, duration: 0.8, stagger: 0.08, ease: "power3.out", delay: 0.1 }
-      );
-      gsap.fromTo(
-        ".hero-bg",
-        { scale: 1.035 },
-        { scale: 1, duration: 1.3, ease: "power2.out", clearProps: "transform,scale" }
+        { opacity: 0, y: 22 },
+        { opacity: 1, y: 0, duration: 0.75, stagger: 0.07, ease: "power3.out", delay: 0.1 }
       );
     }, heroRef);
     return () => ctx.revert();
@@ -37,7 +30,7 @@ export function Hero() {
   };
 
   const stats = [
-    { icon: <Code2 className="w-4 h-4" />, value: 31, suffix: "+", label: isVi ? "Public Repos" : "Public Repos" },
+    { icon: <Code2 className="w-4 h-4" />, value: 31, suffix: "+", label: "Public Repos" },
     { icon: <Users className="w-4 h-4" />, value: 175, suffix: "M", label: isVi ? "Học bổng Maker" : "Maker Scholarship" },
     { icon: <Star className="w-4 h-4" />, value: 5, suffix: "+", label: isVi ? "Dự án cốt lõi" : "Core Projects" },
   ];
@@ -46,44 +39,58 @@ export function Hero() {
     <section
       ref={heroRef}
       id="hero"
-      className="relative w-full min-h-screen lg:h-screen lg:min-h-[680px] overflow-hidden bg-[#dbe7fd] dark:bg-[#060a16] select-none"
+      className="relative w-full min-h-[100svh] lg:h-screen lg:min-h-[680px] overflow-hidden bg-[#c6ddfb] dark:bg-[#060a16] select-none"
     >
-      {/* ===== Background artwork (desktop: full-bleed 4K super-resolved, zero milky fog in light mode) ===== */}
+      {/* ===== Desktop Background: exact untouched hero-root.png at original quality ===== */}
       <div className="hidden lg:block absolute inset-0 overflow-hidden">
         <img
-          src={`/images/hero-bg-4k.webp?${HERO_IMG_VERSION}`}
-          srcSet={`/images/hero-bg-mobile.webp?${HERO_IMG_VERSION} 1600w, /images/hero-bg.webp?${HERO_IMG_VERSION} 2560w, /images/hero-bg-4k.webp?${HERO_IMG_VERSION} 3840w`}
-          sizes="100vw"
+          src="/images/hero-root.png"
           alt=""
           aria-hidden
           fetchPriority="high"
           decoding="sync"
-          className="hero-bg absolute inset-0 w-full h-full object-cover object-[70%_center]"
+          className="absolute inset-0 w-full h-full object-cover object-[70%_center]"
         />
-        {/* Dark mode only: legibility & mood overlay */}
+        {/* Dark mode only overlays */}
         <div className="hidden dark:block absolute inset-y-0 left-0 w-[55%] bg-gradient-to-r from-[#050914]/90 via-[#050914]/55 to-transparent pointer-events-none" />
         <div className="hidden dark:block absolute inset-0 bg-[#040814]/50 pointer-events-none" />
         <div className="hidden dark:block absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-[var(--bg-base)] to-transparent pointer-events-none" />
       </div>
 
-      {/* ===== Content ===== */}
-      <div className="relative z-10 h-full max-w-[1440px] mx-auto px-5 sm:px-8 lg:px-14 xl:px-20 pt-28 lg:pt-0 pb-10 lg:pb-0 flex flex-col lg:justify-center">
+      {/* ===== Mobile / Tablet Unified Vertical Background: full-bleed portrait artwork ===== */}
+      <div className="lg:hidden absolute inset-0 overflow-hidden">
+        <img
+          src="/images/hero-mobile.png"
+          alt=""
+          aria-hidden
+          fetchPriority="high"
+          decoding="async"
+          className="absolute inset-0 w-full h-full object-cover object-bottom"
+        />
+        {/* Dark mode only overlays for mobile */}
+        <div className="hidden dark:block absolute inset-x-0 top-0 h-[58%] bg-gradient-to-b from-[#050914]/92 via-[#050914]/70 to-transparent pointer-events-none" />
+        <div className="hidden dark:block absolute inset-0 bg-[#040814]/45 pointer-events-none" />
+        <div className="hidden dark:block absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-[var(--bg-base)] to-transparent pointer-events-none" />
+      </div>
+
+      {/* ===== Content (Unified over background on BOTH Desktop & Mobile) ===== */}
+      <div className="relative z-10 h-full max-w-[1440px] mx-auto px-5 sm:px-8 lg:px-14 xl:px-20 pt-22 sm:pt-26 lg:pt-0 pb-4 lg:pb-0 flex flex-col justify-between lg:justify-center min-h-[100svh] lg:min-h-0">
         <div className="w-full lg:max-w-[560px] xl:max-w-[600px]">
           {/* Eyebrow */}
-          <div className="hero-reveal flex items-center gap-3 mb-6">
-            <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/85 dark:bg-white/10 backdrop-blur-md border border-white dark:border-white/15 shadow-sm text-[12px] font-semibold text-slate-800 dark:text-slate-100">
+          <div className="hero-reveal flex flex-wrap items-center gap-2.5 sm:gap-3 mb-3.5 sm:mb-5 lg:mb-6">
+            <span className="inline-flex items-center gap-2 px-3 sm:px-3.5 py-1 sm:py-1.5 rounded-full bg-white/85 dark:bg-white/10 backdrop-blur-md border border-white dark:border-white/15 shadow-sm text-[11px] sm:text-[12px] font-semibold text-slate-800 dark:text-slate-100">
               <span className="w-2 h-2 rounded-full bg-[#2563EB] shadow-[0_0_8px_#2563EB]" />
               Software Engineer
             </span>
-            <span className="h-4 w-px bg-slate-400/60" />
-            <span className="inline-flex items-center gap-1 text-[12px] font-medium text-slate-700 dark:text-slate-300">
+            <span className="h-3.5 w-px bg-slate-400/60" />
+            <span className="inline-flex items-center gap-0.5 text-[11px] sm:text-[12px] font-medium text-slate-700 dark:text-slate-300">
               {isVi ? "Luôn kiến tạo tốt hơn" : "Always Building Better"}
               <ChevronRight className="w-3.5 h-3.5" />
             </span>
           </div>
 
           {/* Name with orbit ring */}
-          <div className="hero-reveal relative w-fit mb-4">
+          <div className="hero-reveal relative w-fit mb-2.5 sm:mb-4">
             <svg
               viewBox="0 0 600 160"
               className="absolute -left-[4%] -top-[22%] w-[112%] h-[150%] pointer-events-none"
@@ -105,7 +112,7 @@ export function Hero() {
                 </linearGradient>
               </defs>
             </svg>
-            <h1 className="relative font-black italic tracking-[-0.045em] leading-[0.95] text-[clamp(2.6rem,9vw,5.6rem)] text-[#0A0D14] dark:text-white">
+            <h1 className="relative font-black italic tracking-[-0.045em] leading-[0.95] text-[clamp(2.35rem,10.5vw,5.6rem)] text-[#0A0D14] dark:text-white">
               HOANG
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#1d4ed8] via-[#2563EB] to-[#38bdf8] pr-2">
                 PHUC
@@ -114,13 +121,13 @@ export function Hero() {
           </div>
 
           {/* Tagline */}
-          <h2 className="hero-reveal font-bold italic tracking-[-0.02em] leading-[1.15] text-[clamp(1.6rem,4.2vw,2.5rem)] text-[#0f172a] dark:text-slate-100 mb-5">
+          <h2 className="hero-reveal font-bold italic tracking-[-0.02em] leading-[1.15] text-[clamp(1.35rem,5.2vw,2.5rem)] text-[#0f172a] dark:text-slate-100 mb-3 sm:mb-5">
             {isVi ? "Biến Ý Tưởng" : "Turning Ideas"}
             <br />
             {isVi ? "Thành " : "Into "}
             <span className="relative inline-block text-transparent bg-clip-text bg-gradient-to-r from-[#1d4ed8] to-[#38bdf8]">
               {isVi ? "Sản Phẩm" : "Amazing"}
-              <svg viewBox="0 0 200 12" className="absolute left-0 -bottom-1.5 w-full h-2.5" fill="none" aria-hidden>
+              <svg viewBox="0 0 200 12" className="absolute left-0 -bottom-1.5 w-full h-2 sm:h-2.5" fill="none" aria-hidden>
                 <path d="M2 9 C 60 2, 140 2, 198 7" stroke="#2563EB" strokeWidth="3" strokeLinecap="round" />
               </svg>
             </span>{" "}
@@ -128,17 +135,17 @@ export function Hero() {
           </h2>
 
           {/* Description */}
-          <p className="hero-reveal text-[15px] sm:text-base leading-relaxed text-slate-600 dark:text-slate-300 max-w-[460px] mb-8">
+          <p className="hero-reveal text-[13.5px] sm:text-base leading-relaxed text-slate-600 dark:text-slate-300 max-w-[460px] mb-5 sm:mb-8">
             {isVi
               ? "Lập trình viên đam mê tạo ra các giải pháp sáng tạo với công nghệ hiện đại."
               : "A passionate developer focused on creating innovative solutions with modern technologies."}
           </p>
 
           {/* Actions */}
-          <div className="hero-reveal flex flex-wrap items-center gap-6 mb-10">
+          <div className="hero-reveal flex flex-wrap items-center gap-4 sm:gap-6 mb-5 sm:mb-9 lg:mb-10">
             <button
               onClick={() => scrollTo("work")}
-              className="group inline-flex items-center gap-2.5 px-7 py-3.5 rounded-full bg-[#0b1530] dark:bg-white text-white dark:text-[#0b1530] text-sm font-semibold shadow-[0_10px_30px_rgba(11,21,48,0.35)] ring-1 ring-[#2563EB]/50 hover:-translate-y-0.5 hover:shadow-[0_14px_36px_rgba(37,99,235,0.45)] active:scale-95 transition-all duration-300 cursor-pointer"
+              className="group inline-flex items-center gap-2 sm:gap-2.5 px-5.5 sm:px-7 py-3 sm:py-3.5 rounded-full bg-[#0b1530] dark:bg-white text-white dark:text-[#0b1530] text-xs sm:text-sm font-semibold shadow-[0_10px_30px_rgba(11,21,48,0.35)] ring-1 ring-[#2563EB]/50 hover:-translate-y-0.5 hover:shadow-[0_14px_36px_rgba(37,99,235,0.45)] active:scale-95 transition-all duration-300 cursor-pointer"
             >
               {isVi ? "Xem Dự Án" : "Explore My Work"}
               <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
@@ -146,10 +153,10 @@ export function Hero() {
 
             <button
               onClick={() => scrollTo("about")}
-              className="group inline-flex items-center gap-3 text-sm font-medium text-slate-700 dark:text-slate-200 cursor-pointer"
+              className="group inline-flex items-center gap-2.5 sm:gap-3 text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-200 cursor-pointer"
             >
-              <span className="w-12 h-12 rounded-full bg-white/90 dark:bg-white/10 backdrop-blur-md border border-white dark:border-white/15 shadow-md flex items-center justify-center group-hover:scale-110 transition-transform">
-                <Play className="w-4 h-4 fill-[#2563EB] text-[#2563EB] ml-0.5" />
+              <span className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/90 dark:bg-white/10 backdrop-blur-md border border-white dark:border-white/15 shadow-md flex items-center justify-center group-hover:scale-110 transition-transform">
+                <Play className="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-[#2563EB] text-[#2563EB] ml-0.5" />
               </span>
               {isVi ? "Giới thiệu" : "Watch Intro"}
             </button>
@@ -160,30 +167,20 @@ export function Hero() {
             {stats.map((s, i) => (
               <div
                 key={s.label}
-                className={`pr-6 sm:pr-10 ${i > 0 ? "pl-6 sm:pl-10 border-l border-slate-300/70 dark:border-white/15" : ""}`}
+                className={`pr-4 sm:pr-10 ${i > 0 ? "pl-4 sm:pl-10 border-l border-slate-400/45 dark:border-white/15" : ""}`}
               >
-                <div className="text-[#2563EB] dark:text-sky-400 mb-2">{s.icon}</div>
-                <div className="text-xl sm:text-2xl font-extrabold text-[#0A0D14] dark:text-white leading-none">
+                <div className="text-[#2563EB] dark:text-sky-400 mb-1 sm:mb-2">{s.icon}</div>
+                <div className="text-lg sm:text-2xl font-extrabold text-[#0A0D14] dark:text-white leading-none">
                   <CounterBadge value={s.value} suffix={s.suffix} />
                 </div>
-                <div className="text-xs text-slate-500 dark:text-slate-400 mt-1.5">{s.label}</div>
+                <div className="text-[11px] sm:text-xs text-slate-600 dark:text-slate-400 mt-1 sm:mt-1.5">{s.label}</div>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Mobile / tablet artwork (no text over the face) */}
-        <div className="lg:hidden hero-reveal mt-10 -mx-5 sm:-mx-8">
-          <img
-            src={`/images/hero-bg-mobile.webp?${HERO_IMG_VERSION}`}
-            srcSet={`/images/hero-bg-mobile.webp?${HERO_IMG_VERSION} 1600w, /images/hero-bg.webp?${HERO_IMG_VERSION} 2560w`}
-            sizes="100vw"
-            alt="HOANGPHUC 3D developer realm"
-            className="w-full h-[300px] sm:h-[420px] object-cover object-[72%_center]"
-            fetchPriority="high"
-            decoding="async"
-          />
-        </div>
+        {/* Mobile / tablet lower viewport showcase space so the unified 3D character & globe below are never covered by text */}
+        <div className="lg:hidden w-full h-[88vw] sm:h-[74vw] max-h-[540px] shrink-0 pointer-events-none" aria-hidden />
       </div>
 
       {/* Scroll Down indicator */}
