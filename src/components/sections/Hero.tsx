@@ -1,272 +1,197 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { portfolioData } from "@/data/portfolioData";
 import { usePortfolio } from "@/context/PortfolioContext";
-import { ScrambleText } from "@/hooks/useTextScramble";
 import { CounterBadge } from "@/hooks/useCounter";
-import { VelocityMarquee } from "@/components/ui/VelocityMarquee";
-import {
-  Compass,
-  MapPin,
-  ArrowRight,
-  Code2,
-} from "lucide-react";
-
-if (typeof window !== "undefined") {
-  gsap.registerPlugin(ScrollTrigger);
-}
+import { ArrowRight, Play, Code2, Users, Star, ChevronRight } from "lucide-react";
 
 export function Hero() {
   const { locale, playUiSound } = usePortfolio();
-  const [roleIndex, setRoleIndex] = useState(0);
-
   const heroRef = useRef<HTMLElement>(null);
-  const leftColRef = useRef<HTMLDivElement>(null);
-  const imageStageRef = useRef<HTMLDivElement>(null);
+  const isVi = locale === "vi";
 
-  const roles = [
-    { en: "Mobile Applications", vi: "Ứng dụng Di động" },
-    { en: "Flutter & Dart Specialist", vi: "Chuyên sâu Flutter & Dart" },
-    { en: "Kotlin Android Native", vi: "Android Native với Kotlin" },
-    { en: "SwiftUI iOS Systems", vi: "Hệ thống iOS với SwiftUI" },
-    { en: "Applied AI & Machine Learning", vi: "Trí tuệ Nhân tạo & ML" },
-    { en: "Backend & Cloud Systems", vi: "Backend & Kiến trúc Đám mây" },
-  ];
-
-  // Cycling roles
   useEffect(() => {
-    const timer = setInterval(() => {
-      setRoleIndex((prev) => (prev + 1) % roles.length);
-    }, 2800);
-    return () => clearInterval(timer);
-  }, [roles.length]);
-
-  // Entrance animation
-  useEffect(() => {
-    if (typeof window === "undefined" || !heroRef.current) return;
-
+    if (!heroRef.current) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const ctx = gsap.context(() => {
-      if (leftColRef.current) {
-        gsap.fromTo(
-          leftColRef.current,
-          { opacity: 0, x: -30 },
-          { opacity: 1, x: 0, duration: 0.9, ease: "power2.out" }
-        );
-      }
-      if (imageStageRef.current) {
-        gsap.fromTo(
-          imageStageRef.current,
-          { opacity: 0, scale: 0.96 },
-          { opacity: 1, scale: 1, duration: 1.1, ease: "power2.out", delay: 0.1 }
-        );
-      }
+      gsap.fromTo(
+        ".hero-reveal",
+        { opacity: 0, y: 24 },
+        { opacity: 1, y: 0, duration: 0.8, stagger: 0.08, ease: "power3.out", delay: 0.15 }
+      );
+      gsap.fromTo(".hero-bg", { scale: 1.06 }, { scale: 1, duration: 1.6, ease: "power2.out" });
     }, heroRef);
-
     return () => ctx.revert();
   }, []);
 
-  const scrollToWork = () => {
+  const scrollTo = (id: string) => {
     playUiSound("whoosh");
-    const el = document.getElementById("work");
-    if (el) el.scrollIntoView({ behavior: "smooth" });
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
   };
+
+  const stats = [
+    { icon: <Code2 className="w-4 h-4" />, value: 31, suffix: "+", label: isVi ? "Public Repos" : "Public Repos" },
+    { icon: <Users className="w-4 h-4" />, value: 175, suffix: "M", label: isVi ? "Học bổng Maker" : "Maker Scholarship" },
+    { icon: <Star className="w-4 h-4" />, value: 5, suffix: "+", label: isVi ? "Dự án cốt lõi" : "Core Projects" },
+  ];
 
   return (
     <section
       ref={heroRef}
       id="hero"
-      className="relative min-h-screen w-full pt-20 sm:pt-24 pb-4 sm:pb-6 flex flex-col justify-between overflow-hidden px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 bg-gradient-to-b from-[#f0f6fa] via-[#f4f8fb] to-[#f8fafc] dark:from-[#070b14] dark:via-[#090f1d] dark:to-[#070910] text-[#090d16] dark:text-white select-none transition-colors duration-500"
+      className="relative w-full min-h-screen lg:h-screen lg:min-h-[680px] overflow-hidden bg-[#dbe7fd] dark:bg-[#060a16] select-none"
     >
-      {/* Soft celestial sky-blue ambient aura behind the 3D character matching the sample composition */}
-      <div
-        className="absolute top-1/4 right-[8%] w-[55vw] h-[55vw] max-w-[850px] max-h-[850px] rounded-full pointer-events-none -z-0"
-        style={{
-          background:
-            "radial-gradient(circle, rgba(196, 222, 249, 0.65) 0%, rgba(224, 242, 254, 0.3) 45%, transparent 70%)",
-          filter: "blur(40px)",
-        }}
-      />
-
-      {/* Subtle top left ambient light fill */}
-      <div className="absolute top-10 left-5 w-[35vw] h-[35vw] max-w-[480px] max-h-[480px] rounded-full bg-sky-200/30 dark:bg-sky-500/10 blur-[100px] pointer-events-none -z-0" />
-
-      {/* =========================================================================
-          TOP TELEMETRY / STATUS BAR (Z-20)
-          ========================================================================= */}
-      <div className="flex items-center justify-between gap-3 text-xs font-mono text-slate-700 dark:text-slate-300 border-b border-slate-200/90 dark:border-slate-800 pb-3 z-20 relative">
-        <div className="flex items-center gap-2">
-          <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-500 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-sky-500"></span>
-          </span>
-          <span className="text-slate-900 dark:text-slate-100 font-semibold tracking-wide text-[11px] sm:text-xs">
-            {locale === "vi" ? portfolioData.personal.status.vi : portfolioData.personal.status.en}
-          </span>
-        </div>
-
-        <div className="hidden md:flex items-center gap-4 text-slate-600 dark:text-slate-400">
-          <span className="flex items-center gap-1.5 font-medium">
-            <Compass className="w-3.5 h-3.5 text-[#0284C7]" />
-            10.82°N · 106.63°E
-          </span>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <span className="px-2.5 py-0.5 rounded-full bg-white/90 dark:bg-slate-900/90 text-[#0284C7] dark:text-sky-400 font-bold border border-sky-400/30 text-[9px] shadow-2xs">
-            <CounterBadge value={31} suffix=" REPOS" />
-          </span>
-          <span className="text-slate-600 dark:text-slate-400 font-semibold text-[10px] sm:text-[11px]">HP-CORE v2026</span>
-        </div>
+      {/* ===== Background artwork (desktop: full-bleed) ===== */}
+      <div className="hidden lg:block absolute inset-0 overflow-hidden">
+        <img
+          src="/images/hero-bg.webp"
+          alt=""
+          aria-hidden
+          className="hero-bg absolute inset-0 w-full h-full object-cover object-[70%_center]"
+          loading="eager"
+          decoding="async"
+        />
+        {/* Light: soft left wash for legibility */}
+        <div className="absolute inset-y-0 left-0 w-[55%] bg-gradient-to-r from-[#e6eefe]/85 via-[#e6eefe]/45 to-transparent dark:from-[#050914]/90 dark:via-[#050914]/60" />
+        {/* Dark mode tint over the whole artwork */}
+        <div className="absolute inset-0 bg-transparent dark:bg-[#040814]/55 transition-colors duration-700" />
+        <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[var(--bg-base)] to-transparent" />
       </div>
 
-      {/* =========================================================================
-          MAIN HERO BODY COMPOSITION (SEAMLESS DUAL COLUMN MATCHING SAMPLE MOCKUP)
-          ========================================================================= */}
-      <div className="my-auto py-4 sm:py-6 z-10 relative flex flex-col lg:flex-row items-center justify-between gap-8 lg:gap-6 xl:gap-12">
-        {/* LEFT COLUMN: Clean Editorial Typography & Action Elements */}
-        <div
-          ref={leftColRef}
-          className="w-full lg:w-[44%] xl:w-[42%] flex flex-col justify-center space-y-4 sm:space-y-5 shrink-0"
-        >
-          {/* 1. Category Pill */}
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-sky-400/40 bg-white/85 dark:bg-slate-900/85 backdrop-blur-md w-fit shadow-2xs">
-            <span className="text-[#0284C7] font-mono font-black text-xs">#</span>
-            <span className="text-[10.5px] sm:text-[11px] font-mono uppercase tracking-widest text-slate-700 dark:text-slate-300 font-bold">
-              SOFTWARE &amp; MOBILE ENGINEER
+      {/* ===== Content ===== */}
+      <div className="relative z-10 h-full max-w-[1440px] mx-auto px-5 sm:px-8 lg:px-14 xl:px-20 pt-28 lg:pt-0 pb-10 lg:pb-0 flex flex-col lg:justify-center">
+        <div className="w-full lg:max-w-[560px] xl:max-w-[600px]">
+          {/* Eyebrow */}
+          <div className="hero-reveal flex items-center gap-3 mb-6">
+            <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/80 dark:bg-white/10 backdrop-blur-md border border-white dark:border-white/15 shadow-sm text-[12px] font-semibold text-slate-800 dark:text-slate-100">
+              <span className="w-2 h-2 rounded-full bg-[#2563EB] shadow-[0_0_8px_#2563EB]" />
+              Software Engineer
+            </span>
+            <span className="h-4 w-px bg-slate-400/60" />
+            <span className="inline-flex items-center gap-1 text-[12px] font-medium text-slate-600 dark:text-slate-300">
+              {isVi ? "Luôn kiến tạo tốt hơn" : "Always Building Better"}
+              <ChevronRight className="w-3.5 h-3.5" />
             </span>
           </div>
 
-          {/* 2. Main Headline & Subtitle */}
-          <div className="space-y-1">
-            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-[4.2rem] xl:text-[4.75rem] font-black tracking-[-0.035em] text-[#0A0D14] dark:text-white leading-[0.93] select-none">
-              HOANGPHUC
-            </h1>
-            <div className="pt-0.5">
-              <span className="text-base sm:text-lg md:text-xl font-light text-slate-500 dark:text-slate-400 italic tracking-tight">
-                Hoàng Phúc · Lê Công Hoàng Phúc
-              </span>
-            </div>
-          </div>
-
-          {/* 3. Dynamic Terminal Typing Line */}
-          <div className="h-7 sm:h-8 flex items-center overflow-hidden font-mono text-base sm:text-lg md:text-xl font-bold">
-            <span className="text-[#0284C7] mr-2">&gt;</span>
-            <div
-              key={roleIndex}
-              className="text-[#0284C7] dark:text-sky-400 flex items-center transition-all duration-300"
+          {/* Name with orbit ring */}
+          <div className="hero-reveal relative w-fit mb-4">
+            <svg
+              viewBox="0 0 600 160"
+              className="absolute -left-[4%] -top-[22%] w-[112%] h-[150%] pointer-events-none"
+              fill="none"
+              aria-hidden
             >
-              <ScrambleText
-                text={locale === "vi" ? roles[roleIndex].vi : roles[roleIndex].en}
-                triggerOnHover={false}
+              <path
+                d="M 40 120 C 10 80, 140 18, 330 14 C 500 10, 600 40, 560 80 C 530 112, 420 132, 300 136"
+                stroke="url(#orbitGrad)"
+                strokeWidth="2.2"
+                strokeLinecap="round"
               />
-              <span className="inline-block w-2 h-4 bg-[#0284C7] dark:bg-sky-400 ml-1.5 animate-pulse" />
-            </div>
+              <path d="M 538 6 Q 540 20 554 22 Q 540 24 538 38 Q 536 24 522 22 Q 536 20 538 6 Z" fill="#2563EB" />
+              <defs>
+                <linearGradient id="orbitGrad" x1="0" y1="0" x2="600" y2="0" gradientUnits="userSpaceOnUse">
+                  <stop offset="0" stopColor="#2563EB" stopOpacity="0" />
+                  <stop offset="0.35" stopColor="#2563EB" stopOpacity="0.9" />
+                  <stop offset="1" stopColor="#0284C7" stopOpacity="0.5" />
+                </linearGradient>
+              </defs>
+            </svg>
+            <h1 className="relative font-black italic tracking-[-0.045em] leading-[0.95] text-[clamp(2.6rem,9vw,5.6rem)] text-[#0A0D14] dark:text-white">
+              HOANG
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#1d4ed8] via-[#2563EB] to-[#38bdf8] pr-2">
+                PHUC
+              </span>
+            </h1>
           </div>
 
-          {/* 4. Bio Paragraph (Unboxed, pure typography sitting naturally on canvas) */}
-          <p className="text-xs sm:text-sm md:text-base text-slate-600 dark:text-slate-300 leading-relaxed max-w-lg font-normal">
-            {locale === "vi"
-              ? "Tôi phát triển các ứng dụng di động và hệ thống phần mềm kết hợp trải nghiệm người dùng tinh tế, kiến trúc backend tin cậy và công nghệ thông minh."
-              : "I build mobile applications and software products that bring together thoughtful user experiences, reliable backend systems, and intelligent technology."}
+          {/* Tagline */}
+          <h2 className="hero-reveal font-bold italic tracking-[-0.02em] leading-[1.15] text-[clamp(1.6rem,4.2vw,2.5rem)] text-[#0f172a] dark:text-slate-100 mb-5">
+            {isVi ? "Biến Ý Tưởng" : "Turning Ideas"}
+            <br />
+            {isVi ? "Thành " : "Into "}
+            <span className="relative inline-block text-transparent bg-clip-text bg-gradient-to-r from-[#1d4ed8] to-[#38bdf8]">
+              {isVi ? "Sản Phẩm" : "Amazing"}
+              <svg viewBox="0 0 200 12" className="absolute left-0 -bottom-1.5 w-full h-2.5" fill="none" aria-hidden>
+                <path d="M2 9 C 60 2, 140 2, 198 7" stroke="#2563EB" strokeWidth="3" strokeLinecap="round" />
+              </svg>
+            </span>{" "}
+            {isVi ? "Tuyệt Vời" : "Products"}
+          </h2>
+
+          {/* Description */}
+          <p className="hero-reveal text-[15px] sm:text-base leading-relaxed text-slate-600 dark:text-slate-300 max-w-[460px] mb-8">
+            {isVi
+              ? "Lập trình viên đam mê tạo ra các giải pháp sáng tạo với công nghệ hiện đại."
+              : "A passionate developer focused on creating innovative solutions with modern technologies."}
           </p>
 
-          {/* 5. Action Button */}
-          <div className="pt-1">
+          {/* Actions */}
+          <div className="hero-reveal flex flex-wrap items-center gap-6 mb-10">
             <button
-              onClick={scrollToWork}
-              className="px-6 sm:px-7 py-3 sm:py-3.5 rounded-full bg-[#0284C7] hover:bg-[#0369A1] text-white font-bold text-xs sm:text-sm tracking-wide transition-all duration-300 shadow-md shadow-sky-500/25 hover:shadow-lg hover:shadow-sky-500/35 hover:scale-[1.03] active:scale-95 flex items-center gap-2.5 cursor-pointer w-fit"
+              onClick={() => scrollTo("work")}
+              className="group inline-flex items-center gap-2.5 px-7 py-3.5 rounded-full bg-[#0b1530] dark:bg-white text-white dark:text-[#0b1530] text-sm font-semibold shadow-[0_10px_30px_rgba(11,21,48,0.35)] ring-1 ring-[#2563EB]/50 hover:-translate-y-0.5 hover:shadow-[0_14px_36px_rgba(37,99,235,0.45)] active:scale-95 transition-all duration-300 cursor-pointer"
             >
-              <span>{locale === "vi" ? "Khám Phá Các Dự Án" : "Explore Selected Work"}</span>
-              <ArrowRight className="w-4 h-4" />
+              {isVi ? "Xem Dự Án" : "Explore My Work"}
+              <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+            </button>
+
+            <button
+              onClick={() => scrollTo("about")}
+              className="group inline-flex items-center gap-3 text-sm font-medium text-slate-700 dark:text-slate-200 cursor-pointer"
+            >
+              <span className="w-12 h-12 rounded-full bg-white/90 dark:bg-white/10 backdrop-blur-md border border-white dark:border-white/15 shadow-md flex items-center justify-center group-hover:scale-110 transition-transform">
+                <Play className="w-4 h-4 fill-[#2563EB] text-[#2563EB] ml-0.5" />
+              </span>
+              {isVi ? "Giới thiệu" : "Watch Intro"}
             </button>
           </div>
 
-          {/* 6. Three Stat Counters Strip */}
-          <div className="grid grid-cols-3 gap-4 pt-4 sm:pt-6 border-t border-slate-200/90 dark:border-slate-800 max-w-md">
-            <div>
-              <div className="text-2xl sm:text-3xl font-black font-mono text-[#0284C7] dark:text-sky-400">
-                <CounterBadge value={31} />
+          {/* Stats */}
+          <div className="hero-reveal flex items-stretch">
+            {stats.map((s, i) => (
+              <div
+                key={s.label}
+                className={`pr-6 sm:pr-10 ${i > 0 ? "pl-6 sm:pl-10 border-l border-slate-300/70 dark:border-white/15" : ""}`}
+              >
+                <div className="text-[#2563EB] dark:text-sky-400 mb-2">{s.icon}</div>
+                <div className="text-xl sm:text-2xl font-extrabold text-[#0A0D14] dark:text-white leading-none">
+                  <CounterBadge value={s.value} suffix={s.suffix} />
+                </div>
+                <div className="text-xs text-slate-500 dark:text-slate-400 mt-1.5">{s.label}</div>
               </div>
-              <div className="text-[11px] text-slate-500 dark:text-slate-400 font-mono tracking-tight mt-0.5 font-medium">
-                Public Repos
-              </div>
-            </div>
-
-            <div>
-              <div className="text-2xl sm:text-3xl font-black font-mono text-slate-900 dark:text-slate-100">
-                <CounterBadge value={175} suffix="M" />
-              </div>
-              <div className="text-[11px] text-slate-500 dark:text-slate-400 font-mono tracking-tight mt-0.5 font-medium">
-                Maker Scholarship
-              </div>
-            </div>
-
-            <div>
-              <div className="text-2xl sm:text-3xl font-black font-mono text-[#0284C7] dark:text-sky-400">
-                <CounterBadge value={5} suffix="+" />
-              </div>
-              <div className="text-[11px] text-slate-500 dark:text-slate-400 font-mono tracking-tight mt-0.5 font-medium">
-                Core Projects
-              </div>
-            </div>
+            ))}
           </div>
         </div>
 
-        {/* RIGHT COLUMN: The 3D Developer Realm Artwork (Floating naturally on canvas without any card/box borders) */}
-        <div
-          ref={imageStageRef}
-          className="w-full lg:w-[56%] xl:w-[58%] relative flex items-center justify-center lg:justify-end select-none pointer-events-none"
-        >
-          {/* Top Floating Badge: </> CODE · BUILD · IMPACT */}
-          <div className="absolute top-2 sm:top-4 right-6 sm:right-16 z-20 hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border border-slate-200/90 dark:border-slate-800 shadow-sm text-[10px] font-mono font-bold text-slate-800 dark:text-slate-200">
-            <span className="text-[#0284C7] font-black">&lt;/&gt;</span>
-            <span>CODE · BUILD · IMPACT</span>
-          </div>
-
-          {/* Bottom Right Floating Location Pill: 📍 Ho Chi Minh City, VN */}
-          <div className="absolute bottom-4 sm:bottom-8 right-4 sm:right-12 z-20 hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border border-slate-200/90 dark:border-slate-800 shadow-sm text-[10px] font-mono font-semibold text-slate-700 dark:text-slate-300">
-            <MapPin className="w-3 h-3 text-[#0284C7]" />
-            <span>Ho Chi Minh City, VN</span>
-          </div>
-
-          {/* Authentic High-Resolution Artwork floating naturally on the canvas */}
+        {/* Mobile / tablet artwork (no text over the face) */}
+        <div className="lg:hidden hero-reveal mt-10 -mx-5 sm:-mx-8">
           <img
-            src="/images/portrait2.png"
-            alt="HOANGPHUC 3D Developer Realm"
-            className="w-full h-auto max-h-[580px] lg:max-h-[640px] xl:max-h-[700px] object-contain object-center lg:object-right select-none drop-shadow-[0_20px_50px_rgba(2,132,199,0.18)]"
+            src="/images/hero-bg.webp"
+            alt="HOANGPHUC 3D developer realm"
+            className="w-full h-[300px] sm:h-[420px] object-cover object-[72%_center]"
             loading="eager"
             decoding="async"
           />
         </div>
       </div>
 
-      {/* =========================================================================
-          BOTTOM KINETIC VELOCITY MARQUEE TICKER (SHARED Z-20)
-          ========================================================================= */}
-      <div className="border-t border-slate-200/90 dark:border-slate-800 pt-3 overflow-hidden z-20 relative">
-        <VelocityMarquee
-          baseVelocity={0.7}
-          className="font-mono text-[11px] sm:text-xs uppercase tracking-widest text-slate-500 dark:text-slate-400"
-        >
-          <span>C# .NET WINFORMS</span>
-          <span className="text-[#0284C7] font-bold px-2">+</span>
-          <span>FLUTTER ENGINEERING</span>
-          <span className="text-[#0284C7] font-bold px-2">+</span>
-          <span>KOTLIN ANDROID MEDIA3</span>
-          <span className="text-[#0284C7] font-bold px-2">+</span>
-          <span>SWIFTUI & COMBINE</span>
-          <span className="text-[#0284C7] font-bold px-2">+</span>
-          <span>NODE.JS & WEBSOCKET GATEWAY</span>
-          <span className="text-[#0284C7] font-bold px-2">+</span>
-          <span>POSTGRESQL & POSTGIS SPATIAL</span>
-          <span className="text-[#0284C7] font-bold px-2">+</span>
-          <span>APPLIED AI & MACHINE LEARNING</span>
-          <span className="text-[#0284C7] font-bold px-2">+</span>
-        </VelocityMarquee>
-      </div>
+      {/* Scroll Down indicator */}
+      <button
+        onClick={() => scrollTo("about")}
+        className="hidden lg:flex absolute bottom-6 left-1/2 -translate-x-1/2 z-10 flex-col items-center gap-2 text-xs text-slate-600 dark:text-slate-300 cursor-pointer"
+        aria-label="Scroll down"
+      >
+        <span className="w-6 h-9 rounded-full border-2 border-slate-500/70 dark:border-slate-300/70 flex justify-center pt-1.5">
+          <span className="w-1 h-2 rounded-full bg-[#2563EB] animate-bounce" />
+        </span>
+        <span className="flex items-center gap-3">
+          <span className="w-8 h-px bg-slate-400/70" />
+          Scroll Down
+          <span className="w-8 h-px bg-slate-400/70" />
+        </span>
+      </button>
     </section>
   );
 }
